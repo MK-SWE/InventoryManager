@@ -110,7 +110,7 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         return Task.FromResult(createdProduct);
     }
     
-    public Task UpdateById(int id, Action<Product> updateAction)
+    public Task<Product> UpdateById(int id, Action<Product> updateAction)
     {
         var index = _repo.FindIndex(p => p.Id == id);
         if (index == -1) throw new KeyNotFoundException();
@@ -120,7 +120,7 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         updateAction(updated);
     
         _repo[index] = updated;
-        return Task.CompletedTask;
+        return Task.FromResult(_repo[index]);
     }
     
     public Task DeleteById(int id)

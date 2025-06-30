@@ -9,9 +9,9 @@ public class CreateProductCommandHandler: IRequestHandler<CreateProductCommand, 
 {
     private readonly IWriteRepository<Product> _productRepository;
 
-    public CreateProductCommandHandler(IWriteRepository<Product> ProductRepository)
+    public CreateProductCommandHandler(IWriteRepository<Product> productRepository)
     {
-        _productRepository = ProductRepository;
+        _productRepository = productRepository;
     }
     
     public async Task<Product> Handle(CreateProductCommand request, CancellationToken cancellationToken)

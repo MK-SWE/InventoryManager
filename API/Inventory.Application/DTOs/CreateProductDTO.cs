@@ -1,6 +1,6 @@
 ﻿namespace Inventory.Application.DTOs;
 
-public record CreateProductDTO()
+public record CreateProductDTO
 {
     public int Id { get; init; }
     public required string SKU { get; init; }
