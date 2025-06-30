@@ -1,6 +1,6 @@
-﻿namespace Inventory.Domain.Entities;
+﻿namespace Inventory.Application.DTOs;
 
-public record Product
+public record CreateProductDTO()
 {
     public int Id { get; init; }
     public required string SKU { get; init; }
@@ -13,4 +13,4 @@ public record Product
     public int Weight { get; init; }
     public int Volume { get; init; }
     public bool IsActive { get; init; }
-}
+};

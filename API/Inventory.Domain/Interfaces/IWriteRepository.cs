@@ -2,6 +2,7 @@
 
 public interface IWriteRepository<T>
 {
-    Task DeleteById(int id);
+    Task<T> CreateNew(Func<T> createAction);
     Task UpdateById(int id, Action<T> updateAction);
+    Task DeleteById(int id);
 }

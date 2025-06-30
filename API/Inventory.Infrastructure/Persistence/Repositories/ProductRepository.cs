@@ -92,16 +92,24 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         var product = _repo.FirstOrDefault(p => p.Id == id);
         return Task.FromResult(product);
     }
-    
-    public Task DeleteById(int id)
+
+    public Task<Product> CreateNew(Func<Product> factory)
     {
-        var productId = _repo.FindIndex(p => p.Id == id);
-        if (productId == -1) throw new KeyNotFoundException();
+        var product = factory();
+    
+        if (product.Id != 0)
+        {
+            throw new InvalidOperationException("New product must have Id=0");
+        }
 
-        _repo.RemoveAt(productId);
-        return Task.CompletedTask;
+        // Auto-generate ID
+        var newId = _repo.Count > 0 ? _repo.Max(p => p.Id) + 1 : 1;
+        var createdProduct = product with { Id = newId };
+    
+        _repo.Add(createdProduct);
+        return Task.FromResult(createdProduct);
     }
-
+    
     public Task UpdateById(int id, Action<Product> updateAction)
     {
         var index = _repo.FindIndex(p => p.Id == id);
@@ -112,6 +120,15 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         updateAction(updated);
     
         _repo[index] = updated;
+        return Task.CompletedTask;
+    }
+    
+    public Task DeleteById(int id)
+    {
+        var productId = _repo.FindIndex(p => p.Id == id);
+        if (productId == -1) throw new KeyNotFoundException();
+
+        _repo.RemoveAt(productId);
         return Task.CompletedTask;
     }
 }
