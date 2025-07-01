@@ -16,7 +16,7 @@ public class CreateProductCommandHandler: IRequestHandler<CreateProductCommand, 
     
     public async Task<Product> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        return await _productRepository.CreateNew(() => 
+        return await _productRepository.CreateNewAsync(() => 
             new Product 
             {
                 SKU = request.NewProductDTO.SKU,

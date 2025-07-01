@@ -82,18 +82,19 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         };
     }
 
-    public Task<List<Product>> GetAll()
+    public Task<List<Product>> GetAllAsync()
     {
         return Task.FromResult<List<Product>>(_repo);
     }
 
-    public Task<Product?> GetById(int id)
+    public Task<Product?> GetByIdAsync(int id)
     {
-        var product = _repo.FirstOrDefault(p => p.Id == id);
-        return Task.FromResult(product);
+        var index = _repo.FindIndex(p => p.Id == id);
+        if (index == -1) throw new KeyNotFoundException();
+        return Task.FromResult(_repo[index]);
     }
 
-    public Task<Product> CreateNew(Func<Product> factory)
+    public Task<Product> CreateNewAsync(Func<Product> factory)
     {
         var product = factory();
     
@@ -110,7 +111,7 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         return Task.FromResult(createdProduct);
     }
     
-    public Task<Product> UpdateById(int id, Action<Product> updateAction)
+    public Task<Product> UpdateByIdAsync(int id, Action<Product> updateAction)
     {
         var index = _repo.FindIndex(p => p.Id == id);
         if (index == -1) throw new KeyNotFoundException();
@@ -123,7 +124,7 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         return Task.FromResult(_repo[index]);
     }
     
-    public Task DeleteById(int id)
+    public Task DeleteByIdAsync(int id)
     {
         var productId = _repo.FindIndex(p => p.Id == id);
         if (productId == -1) throw new KeyNotFoundException();

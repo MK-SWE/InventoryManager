@@ -16,6 +16,13 @@ public class GetOneProductQueryHandler: IRequestHandler<GetOneProductQuery, Prod
 
     public async Task<Product?> Handle(GetOneProductQuery request, CancellationToken cancellationToken)
     {
-        return await _productsRepository.GetById(request.Id);
+        try
+        {
+            return await _productsRepository.GetByIdAsync(request.Id);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            throw new NotFoundException($"Product {request.Id} not found", ex);
+        }
     }
 }

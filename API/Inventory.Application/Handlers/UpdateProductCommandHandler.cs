@@ -16,18 +16,25 @@ public class UpdateProductCommandHandler: IRequestHandler<UpdateProductCommand, 
     
     public async Task<Product> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
-        return await _productRepository.UpdateById(request.Id, (product) => 
+        try
         {
-            // Map properties from DTO to domain entity
-            product = product with { ProductName = request.UpdateProduct.ProductName ?? product.ProductName };
-            product = product with { ProductDescription = request.UpdateProduct.ProductDescription ?? product.ProductDescription };
-            product = product with { CategoryId = request.UpdateProduct.CategoryId ?? product.CategoryId };
-            product = product with { UnitOfMeasureId = request.UpdateProduct.UnitOfMeasureId ?? product.UnitOfMeasureId };
-            product = product with { UnitPrice = request.UpdateProduct.UnitPrice ?? product.UnitPrice };
-            product = product with { ReorderLevel = request.UpdateProduct.ReorderLevel ?? product.ReorderLevel };
-            product = product with { Weight = request.UpdateProduct.Weight ?? product.Weight };
-            product = product with { Volume = request.UpdateProduct.Volume ?? product.Volume };
-            product = product with { IsActive = request.UpdateProduct.IsActive ?? product.IsActive };
-        });
+            return await _productRepository.UpdateByIdAsync(request.Id, (product) =>
+            {
+                // Map properties from DTO to domain entity
+                product = product with { ProductName = request.UpdateProduct.ProductName ?? product.ProductName };
+                product = product with { ProductDescription = request.UpdateProduct.ProductDescription ?? product.ProductDescription };
+                product = product with { CategoryId = request.UpdateProduct.CategoryId ?? product.CategoryId };
+                product = product with { UnitOfMeasureId = request.UpdateProduct.UnitOfMeasureId ?? product.UnitOfMeasureId };
+                product = product with { UnitPrice = request.UpdateProduct.UnitPrice ?? product.UnitPrice };
+                product = product with { ReorderLevel = request.UpdateProduct.ReorderLevel ?? product.ReorderLevel };
+                product = product with { Weight = request.UpdateProduct.Weight ?? product.Weight };
+                product = product with { Volume = request.UpdateProduct.Volume ?? product.Volume };
+                product = product with { IsActive = request.UpdateProduct.IsActive ?? product.IsActive };
+            });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            throw new NotFoundException($"Product {request.Id} not found", ex);
+        }
     }
 }
