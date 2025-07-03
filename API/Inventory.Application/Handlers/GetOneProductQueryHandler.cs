@@ -1,4 +1,5 @@
-﻿using Inventory.Application.Queries;
+﻿using Inventory.Application.Common.Exceptions;
+using Inventory.Application.Queries;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using MediatR;

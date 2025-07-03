@@ -87,7 +87,7 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         return Task.FromResult<List<Product>>(_repo);
     }
 
-    public Task<Product?> GetByIdAsync(int id)
+    public Task<Product> GetByIdAsync(int id)
     {
         var index = _repo.FindIndex(p => p.Id == id);
         if (index == -1) throw new KeyNotFoundException();
