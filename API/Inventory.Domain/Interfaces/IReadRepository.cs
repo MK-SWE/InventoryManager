@@ -2,6 +2,6 @@
 
 public interface IReadRepository<T>
 {
-    Task<List<T>> GetAllAsync();
-    Task<T> GetByIdAsync(int id);
+    Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken);
+    Task<T?> GetByIdAsync(int id);
 }
