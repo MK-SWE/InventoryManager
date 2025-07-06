@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Inventory.Application.Handlers;
 
-public class GetAllProductsQueryHandler: IRequestHandler<GetAllProductsQuery, List<Product>>
+public class GetAllProductsQueryHandler: IRequestHandler<GetAllProductsQuery, IReadOnlyList<Product>>
 {
     private readonly IReadRepository<Product> _productsRepository;
 
@@ -14,9 +14,9 @@ public class GetAllProductsQueryHandler: IRequestHandler<GetAllProductsQuery, Li
         _productsRepository = productsRepository;
     }
 
-    public async Task<List<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
     {
-        var products = await _productsRepository.GetAllAsync();
+        IReadOnlyList<Product> products = await _productsRepository.GetAllAsync(cancellationToken);
         return products;
     }
 }

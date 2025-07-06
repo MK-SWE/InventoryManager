@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Inventory.Application.Queries;
 
-public record GetAllProductsQuery(): IRequest<List<Product>>;
+public record GetAllProductsQuery(): IRequest<IReadOnlyList<Product>>;

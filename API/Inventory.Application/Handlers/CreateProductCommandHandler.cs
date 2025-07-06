@@ -1,34 +1,30 @@
-﻿using Inventory.Application.Commands;
+﻿using AutoMapper;
+using Inventory.Application.Commands;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using MediatR;
 
 namespace Inventory.Application.Handlers;
 
-public class CreateProductCommandHandler: IRequestHandler<CreateProductCommand, Product>
+public class CreateProductCommandHandler: IRequestHandler<CreateProductCommand, int>
 {
     private readonly IWriteRepository<Product> _productRepository;
+    private readonly IMapper _mapper;
 
-    public CreateProductCommandHandler(IWriteRepository<Product> productRepository)
+    public CreateProductCommandHandler(
+        IWriteRepository<Product> productRepository,
+        IMapper mapper)
     {
         _productRepository = productRepository;
+        _mapper = mapper;
     }
     
-    public async Task<Product> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        return await _productRepository.CreateNewAsync(() => 
-            new Product 
-            {
-                SKU = request.NewProductDTO.SKU,
-                ProductName = request.NewProductDTO.ProductName,
-                ProductDescription = request.NewProductDTO.ProductDescription,
-                CategoryId = request.NewProductDTO.CategoryId,
-                UnitOfMeasureId = request.NewProductDTO.UnitOfMeasureId,
-                UnitPrice = request.NewProductDTO.UnitPrice,
-                ReorderLevel = request.NewProductDTO.ReorderLevel,
-                Weight = request.NewProductDTO.Weight,
-                Volume = request.NewProductDTO.Volume,
-                IsActive = request.NewProductDTO.IsActive
-            });
+        var product = _mapper.Map<Product>(request.NewProductDTO);
+
+        var productId = await _productRepository.CreateNewAsync(product);
+        
+        return productId;
     }
 }

@@ -2,14 +2,15 @@
 
 public record UpdateProductDTO
 {
-    public int? Id { get; init; }
-    public string? ProductName { get; init; }
-    public string? ProductDescription { get; init; }
-    public int? CategoryId { get; init; }
-    public int? UnitOfMeasureId { get; init; }
-    public decimal? UnitPrice { get; init; }
-    public int? ReorderLevel { get; init; }
-    public int? Weight { get; init; }
-    public int? Volume { get; init; }
-    public bool? IsActive { get; init; }
+    public int? Id { get; set; } = null;
+    public string? SKU { get; set; } = null;
+    public string? ProductName { get; init; } = null;
+    public string? ProductDescription { get; init; } = null;
+    public int? CategoryId { get; init; } = null;
+    public int? UnitOfMeasureId { get; init; } = null;
+    public decimal? UnitPrice { get; init; } = null;
+    public int? ReorderLevel { get; init; } = null;
+    public int? Weight { get; init; } = null;
+    public int? Volume { get; init; } = null;
+    public bool? IsActive { get; init; } = null;
 }
