@@ -28,8 +28,11 @@ public class ProductsController: BaseController
     public async Task<ActionResult<int>> CreateNewProduct([FromBody] CreateProductDTO productDto)
     {
         var request = new CreateProductCommand(productDto);
-        var productId = await _mediator.Send(request);
-        return CreatedAtRoute("GetProductById", new { id = productId }, productId);
+        int productId = await _mediator.Send(request);
+        return CreatedAtRoute(
+            nameof(GetProductById), 
+            routeValues: new { id = productId },
+            value: new { Id = productId });
     }
     
     /// <summary>
@@ -47,9 +50,9 @@ public class ProductsController: BaseController
     }
     
     /// <summary>
-    /// Get a product by its Id 
+    /// Get a product by its id 
     /// </summary>
-    /// <param name="id">The product Id</param>
+    /// <param name="id">The product id</param>
     /// <returns>A single Product or Error not found</returns>
     [HttpGet("{id:int}", Name = "GetProductById")]
     [ProducesResponseType(typeof(Product),StatusCodes.Status200OK)]
