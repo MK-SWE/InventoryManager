@@ -16,4 +16,12 @@
       <ProjectReference Include="..\Inventory.Domain\Inventory.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Products\" />
+      <Folder Include="Warehouses\Commands\" />
+      <Folder Include="Warehouses\DTOs\" />
+      <Folder Include="Warehouses\Handlers\" />
+      <Folder Include="Warehouses\Queries\" />
+    </ItemGroup>
+
 </Project>

@@ -1,37 +1,22 @@
-using Inventory.Application.Common.Mapping;
-using Inventory.Domain.Entities;
-using Inventory.Domain.Interfaces;
+using Inventory.API.Extensions;
+using Inventory.Application;
+using Inventory.Infrastructure;
 using Inventory.Infrastructure.Persistence.Context;
-using Inventory.Infrastructure.Persistence.Repositories;
 using Inventory.Infrastructure.Persistence.Seeders;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IReadRepository<Product>, ProductRepository>();
-builder.Services.AddScoped<IWriteRepository<Product>, ProductRepository>();
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddMediatR(cfg => 
-    cfg.RegisterServicesFromAssemblies(
-        typeof(Inventory.Application.Commands.CreateProductCommand).Assembly,
-        typeof(Program).Assembly
-    )
-);
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddProfile<MappingProfile>();
-});
+// Layer-based service registration
+builder.Services
+    .AddApiServices(builder.Configuration)    // API Layer
+    .AddApplication()                         // Application Layer
+    .AddInfrastructure(builder.Configuration); // Infrastructure Layer
 
 var app = builder.Build();
 
-
-using (var scope = app.Services.CreateScope())
+// Database migration and seeding
+await using (var scope = app.Services.CreateAsyncScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
@@ -74,7 +59,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
