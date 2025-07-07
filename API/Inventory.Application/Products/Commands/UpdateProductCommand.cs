@@ -1,7 +1,7 @@
-﻿using Inventory.Application.DTOs;
+﻿using Inventory.Application.Products.DTOs;
 using Inventory.Domain.Entities;
 using MediatR;
 
-namespace Inventory.Application.Commands;
+namespace Inventory.Application.Products.Commands;
 
 public record UpdateProductCommand(int Id, UpdateProductDTO UpdateProduct): IRequest<Product>;

@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using Inventory.Application.Commands;
+using Inventory.Application.Products.Commands;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using MediatR;
 
-namespace Inventory.Application.Handlers;
+namespace Inventory.Application.Products.Handlers;
 
 public class CreateProductCommandHandler: IRequestHandler<CreateProductCommand, int>
 {

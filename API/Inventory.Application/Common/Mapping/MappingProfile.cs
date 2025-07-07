@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Inventory.Application.DTOs;
+using Inventory.Application.Products.DTOs;
 using Inventory.Domain.Entities;
 
 namespace Inventory.Application.Common.Mapping;

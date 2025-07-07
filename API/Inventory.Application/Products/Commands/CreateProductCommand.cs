@@ -1,7 +1,6 @@
-﻿using Inventory.Application.DTOs;
-using Inventory.Domain.Entities;
+﻿using Inventory.Application.Products.DTOs;
 using MediatR;
 
-namespace Inventory.Application.Commands;
+namespace Inventory.Application.Products.Commands;
 
 public record CreateProductCommand(CreateProductDTO NewProductDTO): IRequest<int>;
