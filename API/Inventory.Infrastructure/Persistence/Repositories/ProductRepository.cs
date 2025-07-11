@@ -1,6 +1,7 @@
 ﻿using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using Inventory.Infrastructure.Persistence.Context;
+using Inventory.Infrastructure.Persistence.Repositories.HelperMethods;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Infrastructure.Persistence.Repositories;
@@ -50,7 +51,7 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
         foreach (var property in properties)
         {
             var newValue = property.GetValue(updateProductDTO);
-            var defaultValue = GetDefaultValue(property.PropertyType);
+            var defaultValue = GetDefaultValues.GetValue(property.PropertyType);
         
             // Update only if value is provided (not null or default)
             if (newValue != null && !newValue.Equals(defaultValue))
@@ -70,10 +71,5 @@ public class ProductRepository : IReadRepository<Product>, IWriteRepository<Prod
             .ExecuteDeleteAsync();
     
         return rowsAffected > 0;
-    }
-    
-    private static object? GetDefaultValue(Type type)
-    {
-        return type.IsValueType ? Activator.CreateInstance(type) : null;
     }
 }
