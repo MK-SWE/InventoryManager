@@ -17,3 +17,7 @@ InventoryManager.sln.DotSettings.user
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+# JetBrains IDEs
+.idea/
+*.idea
+*.iml
