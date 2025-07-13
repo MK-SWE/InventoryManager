@@ -14,11 +14,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Inventory.Domain\Inventory.Domain.csproj" />
+      <ProjectReference Include="..\Inventory.Infrastructure\Inventory.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Products\" />
-      <Folder Include="Warehouses\Handlers\" />
     </ItemGroup>
 
 </Project>

@@ -73,7 +73,25 @@ public static class AppDbContextSeed
                     IsActive = false  // Inactive product
                 }
             );
-            
+            await context.SaveChangesAsync();
+        }
+
+        if (!await context.Warehouses.AnyAsync())
+        {
+            context.Warehouses.AddRange(
+                new Warehouse {
+                    WarehouseName = "Showroom Warehouse",
+                    WarehouseAddress = "123 main st"
+                },
+                new Warehouse {
+                    WarehouseName = "Secondary Warehouse",
+                    WarehouseAddress = "321 secondary st"
+                },
+                new Warehouse {
+                    WarehouseName = "Temporary Warehouse",
+                    WarehouseAddress = "123 main st"
+                }
+            );
             await context.SaveChangesAsync();
         }
     }

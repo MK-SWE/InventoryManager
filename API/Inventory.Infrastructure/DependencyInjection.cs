@@ -21,6 +21,8 @@ public static class DependencyInjection
         // Repository registrations
         services.AddScoped<IReadRepository<Product>, ProductRepository>();
         services.AddScoped<IWriteRepository<Product>, ProductRepository>();
+        services.AddScoped<IReadRepository<Warehouse>, WarehouseRepository>();
+        services.AddScoped<IWriteRepository<Warehouse>, WarehouseRepository>();
         
         // Add other repositories similarly:
         // services.AddScoped<IReadRepository<Warehouse>, WarehouseRepository>();
