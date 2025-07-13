@@ -5,7 +5,7 @@ using Inventory.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inventory.API.Controllers.Inventory;
+namespace Inventory.API.Controllers.Products;
 
 public class ProductsController: BaseController
 {
@@ -66,12 +66,14 @@ public class ProductsController: BaseController
     }
     
     /// <summary>
-    /// Update Product by its id  
+    /// Delete product from database
     /// </summary>
-    /// <param name="id">Product id</param>
-    /// <param name="productDto">Product data to update</param>
-    /// <returns>Updated Product</returns>
+    /// <param name="id">The product id to delete </param>
+    /// <returns>No content</returns>
     [HttpPut("{id:int}")]
+    [ProducesResponseType(typeof(Product),StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Product>> UpdateProduct([FromRoute] int id, [FromBody] UpdateProductDTO productDto)
     {
         var request = new UpdateProductCommand(id, productDto);
