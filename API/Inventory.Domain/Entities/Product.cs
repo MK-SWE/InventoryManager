@@ -1,6 +1,6 @@
 ﻿namespace Inventory.Domain.Entities;
 
-public record Product
+public sealed record Product
 {
     public int Id { get; init; }
     public required string SKU { get; init; }

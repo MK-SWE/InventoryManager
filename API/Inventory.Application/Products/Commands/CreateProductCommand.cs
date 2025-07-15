@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Inventory.Application.Products.Commands;
 
-public record CreateProductCommand(CreateProductDTO CreateProductDTO): IRequest<int>;
+public sealed record CreateProductCommand(CreateProductDTO CreateProductDTO): IRequest<int>;

@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Inventory.Application.Products.Queries;
 
-public record GetAllProductsQuery(): IRequest<IReadOnlyList<Product>>;
+public sealed record GetAllProductsQuery(): IRequest<IReadOnlyList<Product>>;

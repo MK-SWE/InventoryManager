@@ -1,6 +1,6 @@
 ﻿namespace Inventory.Application.Products.DTOs;
 
-public record UpdateProductDTO
+public sealed record UpdateProductDTO
 {
     public int? Id { get; set; } = null;
     public string? SKU { get; set; } = null;
