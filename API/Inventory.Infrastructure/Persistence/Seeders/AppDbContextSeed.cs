@@ -81,15 +81,24 @@ public static class AppDbContextSeed
             context.Warehouses.AddRange(
                 new Warehouse {
                     WarehouseName = "Showroom Warehouse",
-                    WarehouseAddress = "123 main st"
+                    WarehouseCode = "Main-123",
+                    WarehouseAddress = "123 main st",
+                    IsActive = true,
+                    Capacity = 123
                 },
                 new Warehouse {
                     WarehouseName = "Secondary Warehouse",
-                    WarehouseAddress = "321 secondary st"
+                    WarehouseCode = "Second-1234",
+                    WarehouseAddress = "321 secondary st",
+                    IsActive = true,
+                    Capacity = 500
                 },
                 new Warehouse {
                     WarehouseName = "Temporary Warehouse",
-                    WarehouseAddress = "123 main st"
+                    WarehouseCode = "Temp-123",
+                    WarehouseAddress = "123 main st",
+                    IsActive = true,
+                    Capacity = 300
                 }
             );
             await context.SaveChangesAsync();
