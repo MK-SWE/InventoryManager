@@ -69,6 +69,7 @@ public class ProductsController: BaseController
     /// Delete product from database
     /// </summary>
     /// <param name="id">The product id to delete </param>
+    /// <param name="productDto">The updating object</param>
     /// <returns>No content</returns>
     [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(Product),StatusCodes.Status200OK)]

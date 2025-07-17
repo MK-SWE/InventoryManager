@@ -69,6 +69,7 @@ public class WarehousesController: BaseController
     /// Delete warehouse from database
     /// </summary>
     /// <param name="id">The warehouse id to delete </param>
+    /// <param name="warehouseDto">The updating object</param>
     /// <returns>No content</returns>
     [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(Warehouse),StatusCodes.Status200OK)]

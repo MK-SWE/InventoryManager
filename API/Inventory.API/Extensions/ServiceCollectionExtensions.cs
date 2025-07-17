@@ -9,7 +9,10 @@ public static class ServiceCollectionExtensions
         // API-specific services
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Inventory.API.xml"));
+        });
         
         return services;
     }
