@@ -1,10 +1,7 @@
-﻿namespace Inventory.Infrastructure.Persistence.Context;
-
-// Inventory.Infrastructure/Persistence/Context/AppDbContextFactory.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
-using System.IO;
+
+namespace Inventory.Infrastructure.Persistence.Context;
 
 public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {

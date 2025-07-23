@@ -1,8 +1,10 @@
-﻿namespace Inventory.Domain.Interfaces;
+﻿using Inventory.Domain.Entities;
 
-public interface IWriteRepository<T>
+namespace Inventory.Domain.Interfaces;
+
+public interface IWriteRepository<T> where T : BaseEntity
 {
-    Task<int> CreateNewAsync(T createDTO);
-    Task<T> UpdateByIdAsync(int id, T updateDTO);
-    Task<bool> DeleteByIdAsync(int id);
+    Task<int> AddAsync(T entity, CancellationToken ct = default);
+    Task UpdateAsync(T entity, CancellationToken ct = default);
+    Task<bool> DeleteAsync(int id, CancellationToken ct = default);
 }

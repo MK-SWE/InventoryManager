@@ -1,7 +1,9 @@
-﻿namespace Inventory.Domain.Interfaces;
+﻿using Inventory.Domain.Entities;
 
-public interface IReadRepository<T>
+namespace Inventory.Domain.Interfaces;
+
+public interface IReadRepository<T> where T : BaseEntity
 {
-    Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken);
-    Task<T?> GetByIdAsync(int id);
+    Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct = default);
+    Task<T?> GetByIdAsync(int id, CancellationToken ct = default);
 }
