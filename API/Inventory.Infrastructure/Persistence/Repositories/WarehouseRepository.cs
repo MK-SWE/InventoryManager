@@ -1,75 +1,59 @@
 ﻿using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using Inventory.Infrastructure.Persistence.Context;
-using Inventory.Infrastructure.Persistence.Repositories.HelperMethods;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Infrastructure.Persistence.Repositories;
 
-public class WarehouseRepository: IReadRepository<Warehouse>, IWriteRepository<Warehouse>
+public class WarehouseRepository(AppDbContext context) : IWarehouseRepository
 {
-    private readonly AppDbContext _context;
+    private readonly AppDbContext _context = context;
+    private DbSet<Warehouse> Set => _context.Set<Warehouse>();
 
-    public WarehouseRepository(AppDbContext context)
+    public async Task<Warehouse?> GetByIdAsync(int id, CancellationToken ct = default)
     {
-        _context = context;
-    }
-    
-    public async Task<IReadOnlyList<Warehouse>> GetAllAsync(CancellationToken cancellationToken)
-    {
-        return await _context.Warehouses
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        return await Set.FindAsync([id], ct);
     }
 
-    public async Task<Warehouse?> GetByIdAsync(int id)
+    public async Task<IReadOnlyList<Warehouse>> GetAllAsync(CancellationToken ct = default)
     {
-        var warehouse = await _context.Warehouses
-            .AsNoTracking()
-            .FirstOrDefaultAsync(w => w.Id == id);
-        return warehouse;
+        return await Set.AsNoTracking().ToListAsync(ct);
     }
 
-    public async Task<int> CreateNewAsync(Warehouse createWarehouseDTO)
+    public async Task<int> AddAsync(Warehouse entity, CancellationToken ct = default)
     {
-        await _context.Warehouses.AddAsync(createWarehouseDTO);
-        await _context.SaveChangesAsync();
-        return createWarehouseDTO.Id;
+        await Set.AddAsync(entity, ct);
+        return entity.Id;
     }
 
-    public async Task<Warehouse> UpdateByIdAsync(int id, Warehouse updateWarehouseDTO)
+    public async Task UpdateAsync(Warehouse entity, CancellationToken ct = default)
     {
-        Warehouse? existing = await _context.Warehouses.FindAsync(id);
-        if (existing == null)
+        // Efficient update - only updates changed properties
+        var entry = _context.Entry(entity);
+        if (entry.State == EntityState.Detached)
         {
-            throw new KeyNotFoundException($"Warehouse with ID {id} not found");
-        }
-
-        var properties = typeof(Warehouse).GetProperties()
-            .Where(w => w.Name != "Id" && w.CanWrite);
-
-        foreach (var property in properties)
-        {
-            var newValue = property.GetValue(updateWarehouseDTO);
-            var defaultValue = GetDefaultValues.GetValue(property.PropertyType);
-        
-            // Update only if value is provided (not null or default)
-            if (newValue != null && !newValue.Equals(defaultValue))
+            var existing = await Set.FindAsync([entity.Id, ct], cancellationToken: ct);
+            if (existing != null)
             {
-                property.SetValue(existing, newValue);
+                _context.Entry(existing).CurrentValues.SetValues(entity);
+                return;
             }
         }
-
-        await _context.SaveChangesAsync();
-        return existing;
+        entry.State = EntityState.Modified;
     }
 
-    public async Task<bool> DeleteByIdAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
     {
-        int rowsAffected = await _context.Warehouses
-            .Where(w => w.Id == id)
-            .ExecuteDeleteAsync();
-    
-        return rowsAffected > 0;
+        var entity = await Set.FindAsync([id], ct);
+        if (entity == null) return false;
+        
+        Set.Remove(entity);
+        return true;
+    }
+
+    public async Task<bool> ExistsAsync(int id, CancellationToken ct = default)
+    {
+        var entity = await Set.FindAsync([id], ct);
+        return entity != null;
     }
 }

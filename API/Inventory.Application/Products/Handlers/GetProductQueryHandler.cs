@@ -6,16 +6,16 @@ using MediatR;
 
 namespace Inventory.Application.Products.Handlers;
 
-public class GetOneProductQueryHandler: IRequestHandler<GetOneProductQuery, Product?>
+public class GetProductQueryHandler: IRequestHandler<GetProductQuery, Product?>
 {
-    private readonly IReadRepository<Product> _productsRepository;
+    private readonly IProductRepository _productsRepository;
 
-    public GetOneProductQueryHandler(IReadRepository<Product> productsRepository)
+    public GetProductQueryHandler(IProductRepository productsRepository)
     {
         _productsRepository = productsRepository;
     }
 
-    public async Task<Product?> Handle(GetOneProductQuery request, CancellationToken cancellationToken)
+    public async Task<Product?> Handle(GetProductQuery request, CancellationToken cancellationToken)
     {
         try
         {

@@ -25,7 +25,7 @@ public class WarehousesController: BaseController
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<int>> CreateNewWarehouse([FromBody] CreateWarehouseDTO warehouseDto)
+    public async Task<ActionResult<int>> CreateNewWarehouse([FromBody] CreateWarehouseDto warehouseDto)
     {
         var request = new CreateWarehouseCommand(warehouseDto);
         int warehouseId = await _mediator.Send(request);
@@ -60,7 +60,7 @@ public class WarehousesController: BaseController
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Warehouse>> GetWarehouseById([FromRoute] int id)
     {
-        var request = new GetOneWarehouseQuery(id);
+        var request = new GetWarehouseQuery(id);
         var warehouse = await _mediator.Send(request);
         return Ok(warehouse);
     }
@@ -75,7 +75,7 @@ public class WarehousesController: BaseController
     [ProducesResponseType(typeof(Warehouse),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Warehouse>> UpdateWarehouse([FromRoute] int id, [FromBody] UpdateWarehouseDTO warehouseDto)
+    public async Task<ActionResult<Warehouse>> UpdateWarehouse([FromRoute] int id, [FromBody] UpdateWarehouseDto warehouseDto)
     {
         var request = new UpdateWarehouseCommand(id, warehouseDto);
         var warehouse = await _mediator.Send(request);

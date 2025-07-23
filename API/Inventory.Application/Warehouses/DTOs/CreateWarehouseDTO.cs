@@ -1,8 +1,7 @@
 ﻿namespace Inventory.Application.Warehouses.DTOs;
 
-public sealed record CreateWarehouseDTO
+public sealed record CreateWarehouseDto
 {
-    public int Id { get; set; }
     public required string WarehouseCode { get; set; }
     public required string WarehouseName { get; set; }
     public required string WarehouseAddress { get; set; }

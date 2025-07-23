@@ -25,7 +25,7 @@ public class ProductsController: BaseController
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<int>> CreateNewProduct([FromBody] CreateProductDTO productDto)
+    public async Task<ActionResult<int>> CreateNewProduct([FromBody] CreateProductDto productDto)
     {
         var request = new CreateProductCommand(productDto);
         int productId = await _mediator.Send(request);
@@ -52,15 +52,15 @@ public class ProductsController: BaseController
     /// <summary>
     /// Get a product by its id 
     /// </summary>
-    /// <param name="id">The product id</param>
+    /// <param name="productId">The product id</param>
     /// <returns>A single Product or Error not found</returns>
-    [HttpGet("{id:int}", Name = "GetProductById")]
+    [HttpGet("{productId:int}", Name = "GetProductById")]
     [ProducesResponseType(typeof(Product),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Product>> GetProductById([FromRoute] int id)
+    public async Task<ActionResult<Product>> GetProductById([FromRoute] int productId)
     {
-        var request = new GetOneProductQuery(id);
+        var request = new GetProductQuery(productId);
         var product = await _mediator.Send(request);
         return Ok(product);
     }
@@ -68,16 +68,16 @@ public class ProductsController: BaseController
     /// <summary>
     /// Delete product from database
     /// </summary>
-    /// <param name="id">The product id to delete </param>
+    /// <param name="productId">The product id to delete </param>
     /// <param name="productDto">The updating object</param>
     /// <returns>No content</returns>
-    [HttpPut("{id:int}")]
+    [HttpPut("{productId:int}", Name = "UpdateProduct")]
     [ProducesResponseType(typeof(Product),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Product>> UpdateProduct([FromRoute] int id, [FromBody] UpdateProductDTO productDto)
+    public async Task<ActionResult<Product>> UpdateProduct([FromRoute] int productId, [FromBody] UpdateProductDto productDto)
     {
-        var request = new UpdateProductCommand(id, productDto);
+        var request = new UpdateProductCommand(productId, productDto);
         var product = await _mediator.Send(request);
         return Ok(product);
     }
@@ -85,14 +85,14 @@ public class ProductsController: BaseController
     /// <summary>
     /// Delete product from database
     /// </summary>
-    /// <param name="id">The product id to delete </param>
+    /// <param name="productId">The product id to delete </param>
     /// <returns>No content</returns>
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{productId:int}", Name = "DeleteProduct")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteProduct([FromRoute] int id)
+    public async Task<ActionResult> DeleteProduct([FromRoute] int productId)
     {
-        var request = new DeleteProductCommand(id);
+        var request = new DeleteProductCommand(productId);
         await _mediator.Send(request);
         return NoContent();
     }

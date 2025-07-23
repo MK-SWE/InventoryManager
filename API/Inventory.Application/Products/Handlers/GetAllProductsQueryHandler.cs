@@ -7,9 +7,9 @@ namespace Inventory.Application.Products.Handlers;
 
 public class GetAllProductsQueryHandler: IRequestHandler<GetAllProductsQuery, IReadOnlyList<Product>>
 {
-    private readonly IReadRepository<Product> _productsRepository;
+    private readonly IProductRepository _productsRepository;
 
-    public GetAllProductsQueryHandler(IReadRepository<Product> productsRepository)
+    public GetAllProductsQueryHandler(IProductRepository productsRepository)
     {
         _productsRepository = productsRepository;
     }

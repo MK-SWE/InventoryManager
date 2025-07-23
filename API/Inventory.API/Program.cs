@@ -13,6 +13,15 @@ builder.Services
     .AddApplication()                         // Application Layer
     .AddInfrastructure(builder.Configuration); // Infrastructure Layer
 
+builder.Services.AddCors(options => 
+{
+    options.AddPolicy("AllowAll", builder => 
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 var app = builder.Build();
 
 // Database migration and seeding
@@ -65,7 +74,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

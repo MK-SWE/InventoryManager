@@ -8,11 +8,11 @@ namespace Inventory.Application.Products.Handlers;
 
 public class CreateProductCommandHandler: IRequestHandler<CreateProductCommand, int>
 {
-    private readonly IWriteRepository<Product> _productRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
 
     public CreateProductCommandHandler(
-        IWriteRepository<Product> productRepository,
+        IProductRepository productRepository,
         IMapper mapper)
     {
         _productRepository = productRepository;
@@ -21,9 +21,9 @@ public class CreateProductCommandHandler: IRequestHandler<CreateProductCommand, 
     
     public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var product = _mapper.Map<Product>(request.CreateProductDTO);
+        var product = _mapper.Map<Product>(request.CreateProductDto);
 
-        var productId = await _productRepository.CreateNewAsync(product);
+        var productId = await _productRepository.AddAsync(product, cancellationToken);
         
         return productId;
     }

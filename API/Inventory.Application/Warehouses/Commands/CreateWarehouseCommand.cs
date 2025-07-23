@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Inventory.Application.Warehouses.Commands;
 
-public sealed record CreateWarehouseCommand(CreateWarehouseDTO CreateWarehouseDTO) : IRequest<int>;
+public sealed record CreateWarehouseCommand(CreateWarehouseDto CreateWarehouseDto) : IRequest<int>;

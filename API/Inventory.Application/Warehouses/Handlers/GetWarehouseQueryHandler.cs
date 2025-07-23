@@ -6,16 +6,16 @@ using MediatR;
 
 namespace Inventory.Application.Warehouses.Handlers;
 
-public class GetOneWarehouseQueryHandler: IRequestHandler<GetOneWarehouseQuery, Warehouse?>
+public class GetWarehouseQueryHandler: IRequestHandler<GetWarehouseQuery, Warehouse?>
 {
-    private readonly IReadRepository<Warehouse> _warehousesRepository;
+    private readonly IWarehouseRepository _warehousesRepository;
 
-    public GetOneWarehouseQueryHandler(IReadRepository<Warehouse> warehousesRepository)
+    public GetWarehouseQueryHandler(IWarehouseRepository warehousesRepository)
     {
         _warehousesRepository = warehousesRepository;
     }
 
-    public async Task<Warehouse?> Handle(GetOneWarehouseQuery request, CancellationToken cancellationToken)
+    public async Task<Warehouse?> Handle(GetWarehouseQuery request, CancellationToken cancellationToken)
     {
         try
         {

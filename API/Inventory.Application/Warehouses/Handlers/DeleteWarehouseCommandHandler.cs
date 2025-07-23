@@ -8,9 +8,9 @@ namespace Inventory.Application.Warehouses.Handlers;
 
 public class DeleteWarehouseCommandHandler: IRequestHandler<DeleteWarehouseCommand>
 {
-    private readonly IWriteRepository<Warehouse> _warehouseRepository;
+    private readonly IWarehouseRepository _warehouseRepository;
 
-    public DeleteWarehouseCommandHandler(IWriteRepository<Warehouse> warehouseRepository)
+    public DeleteWarehouseCommandHandler(IWarehouseRepository warehouseRepository)
     {
         _warehouseRepository = warehouseRepository;
     }
@@ -19,11 +19,13 @@ public class DeleteWarehouseCommandHandler: IRequestHandler<DeleteWarehouseComma
     {
         try
         {
-            await _warehouseRepository.DeleteByIdAsync(request.Id);
+            if (!await _warehouseRepository.ExistsAsync(request.Id, cancellationToken)) 
+                throw new NotFoundException($"Warehouse with id: {request.Id}", "not found");
+            await _warehouseRepository.DeleteAsync(request.Id, cancellationToken);
         }
-        catch (KeyNotFoundException ex)
+        catch (Exception ex)
         {
-            throw new NotFoundException($"Warehouse {request.Id} not found", ex);
+            throw new InvalidOperationException("an Error Occurred", ex);
         }
     }
 }

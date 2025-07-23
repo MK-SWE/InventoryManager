@@ -8,11 +8,11 @@ namespace Inventory.Application.Warehouses.Handlers;
 
 public class CreateWarehouseCommandHandler: IRequestHandler<CreateWarehouseCommand, int>
 {
-    private readonly IWriteRepository<Warehouse> _warehouseRepository;
+    private readonly IWarehouseRepository _warehouseRepository;
     private readonly IMapper _mapper;
 
     public CreateWarehouseCommandHandler(
-        IWriteRepository<Warehouse> warehouseRepository,
+        IWarehouseRepository warehouseRepository,
         IMapper mapper)
     {
         _warehouseRepository = warehouseRepository;
@@ -21,9 +21,9 @@ public class CreateWarehouseCommandHandler: IRequestHandler<CreateWarehouseComma
     
     public async Task<int> Handle(CreateWarehouseCommand request, CancellationToken cancellationToken)
     {
-        var warehouse = _mapper.Map<Warehouse>(request.CreateWarehouseDTO);
+        Warehouse warehouse = _mapper.Map<Warehouse>(request.CreateWarehouseDto);
 
-        var warehouseId = await _warehouseRepository.CreateNewAsync(warehouse);
+        int warehouseId = await _warehouseRepository.AddAsync(warehouse, cancellationToken);
         
         return warehouseId;
     }

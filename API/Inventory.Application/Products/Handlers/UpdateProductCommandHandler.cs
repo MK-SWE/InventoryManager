@@ -9,10 +9,10 @@ namespace Inventory.Application.Products.Handlers;
 
 public class UpdateProductCommandHandler: IRequestHandler<UpdateProductCommand, Product>
 {
-    private readonly IWriteRepository<Product> _productRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
 
-    public UpdateProductCommandHandler(IWriteRepository<Product> productRepository, IMapper mapper)
+    public UpdateProductCommandHandler(IProductRepository productRepository, IMapper mapper)
     {
         _productRepository = productRepository;
         _mapper = mapper;
@@ -22,9 +22,13 @@ public class UpdateProductCommandHandler: IRequestHandler<UpdateProductCommand, 
     {
         try
         {
-            request.UpdateProduct.Id = request.Id;
-            var product = _mapper.Map<Product>(request.UpdateProduct);
-            return await _productRepository.UpdateByIdAsync(request.Id, product);
+            var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (product == null) throw new NotFoundException(nameof(Product), request.Id);
+    
+            _mapper.Map(request.UpdateProduct, product);
+            await _productRepository.UpdateAsync(product, cancellationToken);
+            return product;
+            
         }
         catch (KeyNotFoundException ex)
         {

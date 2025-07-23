@@ -9,10 +9,10 @@ namespace Inventory.Application.Warehouses.Handlers;
 
 public class UpdateWarehouseCommandHandler: IRequestHandler<UpdateWarehouseCommand, Warehouse>
 {
-    private readonly IWriteRepository<Warehouse> _warehouseRepository;
+    private readonly IWarehouseRepository _warehouseRepository;
     private readonly IMapper _mapper;
 
-    public UpdateWarehouseCommandHandler(IWriteRepository<Warehouse> warehouseRepository, IMapper mapper)
+    public UpdateWarehouseCommandHandler(IWarehouseRepository warehouseRepository, IMapper mapper)
     {
         _warehouseRepository = warehouseRepository;
         _mapper = mapper;
@@ -22,9 +22,12 @@ public class UpdateWarehouseCommandHandler: IRequestHandler<UpdateWarehouseComma
     {
         try
         {
-            request.UpdateWarehouse.Id = request.Id;
-            var warehouse = _mapper.Map<Warehouse>(request.UpdateWarehouse);
-            return await _warehouseRepository.UpdateByIdAsync(request.Id, warehouse);
+            var warehouse = await _warehouseRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (warehouse == null) throw new NotFoundException(nameof(Product), request.Id);
+            
+            _mapper.Map(request.UpdateWarehouse, warehouse);
+            await _warehouseRepository.UpdateAsync(warehouse, cancellationToken);
+            return warehouse;
         }
         catch (KeyNotFoundException ex)
         {

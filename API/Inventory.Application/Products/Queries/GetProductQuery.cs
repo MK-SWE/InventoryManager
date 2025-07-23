@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Inventory.Application.Products.Queries;
 
-public sealed record GetOneProductQuery(int Id) : IRequest<Product?>;
+public sealed record GetProductQuery(int Id) : IRequest<Product?>;

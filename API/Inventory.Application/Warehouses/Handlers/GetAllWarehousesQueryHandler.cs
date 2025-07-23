@@ -7,9 +7,9 @@ namespace Inventory.Application.Warehouses.Handlers;
 
 public class GetAllWarehousesQueryHandler: IRequestHandler<GetAllWarehousesQuery, IReadOnlyList<Warehouse>>
 {
-    private readonly IReadRepository<Warehouse> _warehousesRepository;
+    private readonly IWarehouseRepository _warehousesRepository;
 
-    public GetAllWarehousesQueryHandler(IReadRepository<Warehouse> warehousesRepository)
+    public GetAllWarehousesQueryHandler(IWarehouseRepository warehousesRepository)
     {
         _warehousesRepository = warehousesRepository;
     }
