@@ -14,19 +14,13 @@ public static class DependencyInjection
         this IServiceCollection services, 
         IConfiguration configuration)
     {
-        // Database Context
         services.AddDbContext<AppDbContext>(options => 
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-
-        // Repository registrations
-        services.AddScoped<IReadRepository<Product>, ProductRepository>();
-        services.AddScoped<IWriteRepository<Product>, ProductRepository>();
-        services.AddScoped<IReadRepository<Warehouse>, WarehouseRepository>();
-        services.AddScoped<IWriteRepository<Warehouse>, WarehouseRepository>();
         
-        // Add other repositories similarly:
-        // services.AddScoped<IReadRepository<Warehouse>, WarehouseRepository>();
-        // services.AddScoped<IWriteRepository<Warehouse>, WarehouseRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+        services.AddScoped<IProductStockRepository, ProductStockRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         
         return services;
     }
