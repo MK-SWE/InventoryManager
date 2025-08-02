@@ -1,7 +1,7 @@
 ﻿using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using Inventory.Infrastructure.Persistence.Context;
-using Inventory.Shared.DTOs;
+using Inventory.Shared.DTOs.ProductsStock;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Infrastructure.Persistence.Repositories;
@@ -40,6 +40,8 @@ public class ProductRepository(AppDbContext context) : BaseRepository<Product>(c
                 SKU = p.SKU,
                 ProductName = p.ProductName,
                 ProductDescription = p.ProductDescription,
+                Category = p.Category.Name,
+                UnitOfMeasure = p.UnitOfMeasure.Code,
                 UnitPrice = p.UnitPrice,
                 IsActive = p.IsActive,
                 Quantity = p.ProductStocks.Select(ps => new ProductStockResponseDto

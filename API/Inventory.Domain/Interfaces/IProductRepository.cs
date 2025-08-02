@@ -1,5 +1,6 @@
 ﻿using Inventory.Domain.Entities;
 using Inventory.Shared.DTOs;
+using Inventory.Shared.DTOs.ProductsStock;
 
 namespace Inventory.Domain.Interfaces;
 
