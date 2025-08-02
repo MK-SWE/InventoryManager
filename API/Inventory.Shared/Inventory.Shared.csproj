@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs\Products\" />
       <Folder Include="DTOs\Warehouses\" />
     </ItemGroup>
 

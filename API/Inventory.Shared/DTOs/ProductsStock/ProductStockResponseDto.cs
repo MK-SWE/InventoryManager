@@ -1,4 +1,4 @@
-namespace Inventory.Shared.DTOs;
+namespace Inventory.Shared.DTOs.ProductsStock;
 
 public sealed record ProductStockResponseDto
 {
