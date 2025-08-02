@@ -23,10 +23,10 @@ public class UpdateProductCommandHandler: IRequestHandler<UpdateProductCommand, 
         try
         {
             var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (product == null) throw new NotFoundException(nameof(Product), request.Id);
+            if (product == null) throw new KeyNotFoundException();
     
-            _mapper.Map(request.UpdateProduct, product);
-            await _productRepository.UpdateAsync(product, cancellationToken);
+            Product newProduct = _mapper.Map(request.UpdateProductDto, product);
+            await _productRepository.UpdateAsync(newProduct, cancellationToken);
             return product;
             
         }

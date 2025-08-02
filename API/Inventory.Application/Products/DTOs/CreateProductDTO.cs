@@ -7,6 +7,7 @@ public sealed record CreateProductDto
     public required string ProductDescription { get; init; }
     public int CategoryId { get; init; }
     public int UnitOfMeasureId { get; init; }
+    public decimal UnitCost { get; init; }
     public decimal UnitPrice { get; init; }
     public int ReorderLevel { get; init; }
     public int Weight { get; init; }
