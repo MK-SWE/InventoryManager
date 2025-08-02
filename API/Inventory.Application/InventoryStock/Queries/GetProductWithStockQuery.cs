@@ -1,4 +1,4 @@
-using Inventory.Shared.DTOs;
+using Inventory.Shared.DTOs.ProductsStock;
 using MediatR;
 
 namespace Inventory.Application.InventoryStock.Queries;

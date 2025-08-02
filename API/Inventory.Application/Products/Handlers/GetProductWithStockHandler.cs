@@ -1,8 +1,7 @@
 using Inventory.Application.Common.Exceptions;
 using Inventory.Application.InventoryStock.Queries;
-using Inventory.Application.Products.Queries;
 using Inventory.Domain.Interfaces;
-using Inventory.Shared.DTOs;
+using Inventory.Shared.DTOs.ProductsStock;
 using MediatR;
 
 namespace Inventory.Application.Products.Handlers;
