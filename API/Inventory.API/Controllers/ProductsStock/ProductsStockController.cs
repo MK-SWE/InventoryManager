@@ -4,7 +4,7 @@ using Inventory.Application.InventoryStock.Queries;
 using Inventory.Application.Products.Queries;
 using Inventory.Domain.Entities;
 using MediatR;
-using Inventory.Shared.DTOs;
+using Inventory.Shared.DTOs.ProductsStock;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory.API.Controllers.ProductsStock;

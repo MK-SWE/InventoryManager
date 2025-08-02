@@ -46,7 +46,7 @@ await using (var scope = app.Services.CreateAsyncScope())
         try
         {
             // Seed initial data within the transaction
-            await AppDbContextSeed.SeedAsync(context);
+            await AppDbContextSeed.SeedAsync(context, logger);
             
             // Commit transaction if successful
             await transaction.CommitAsync();
