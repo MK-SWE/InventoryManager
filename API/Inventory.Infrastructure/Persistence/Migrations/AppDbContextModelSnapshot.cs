@@ -22,6 +22,47 @@ namespace Inventory.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Inventory.Domain.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ParentCategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bytea")
+                        .HasDefaultValue(new byte[0]);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId");
+
+                    b.ToTable("Categories", (string)null);
+                });
+
             modelBuilder.Entity("Inventory.Domain.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -67,6 +108,9 @@ namespace Inventory.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("UnitCost")
+                        .HasColumnType("numeric");
+
                     b.Property<int>("UnitOfMeasureId")
                         .HasColumnType("integer");
 
@@ -81,8 +125,12 @@ namespace Inventory.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("SKU")
                         .IsUnique();
+
+                    b.HasIndex("UnitOfMeasureId");
 
                     b.ToTable("Products", (string)null);
                 });
@@ -113,7 +161,7 @@ namespace Inventory.Infrastructure.Persistence.Migrations
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bytea")
                         .HasDefaultValue(new byte[0]);
 
@@ -128,6 +176,57 @@ namespace Inventory.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("ProductStocks", (string)null);
+                });
+
+            modelBuilder.Entity("Inventory.Domain.Entities.UnitOfMeasure", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BaseUnitId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("ConversionFactor")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsBaseUnit")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bytea")
+                        .HasDefaultValue(new byte[0]);
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseUnitId");
+
+                    b.ToTable("UnitOfMeasures", (string)null);
                 });
 
             modelBuilder.Entity("Inventory.Domain.Entities.Warehouse", b =>
@@ -180,6 +279,34 @@ namespace Inventory.Infrastructure.Persistence.Migrations
                     b.ToTable("Warehouses", (string)null);
                 });
 
+            modelBuilder.Entity("Inventory.Domain.Entities.Category", b =>
+                {
+                    b.HasOne("Inventory.Domain.Entities.Category", "ParentCategory")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("ParentCategoryId");
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("Inventory.Domain.Entities.Product", b =>
+                {
+                    b.HasOne("Inventory.Domain.Entities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Inventory.Domain.Entities.UnitOfMeasure", "UnitOfMeasure")
+                        .WithMany("Products")
+                        .HasForeignKey("UnitOfMeasureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("UnitOfMeasure");
+                });
+
             modelBuilder.Entity("Inventory.Domain.Entities.ProductStock", b =>
                 {
                     b.HasOne("Inventory.Domain.Entities.Product", "Product")
@@ -199,9 +326,30 @@ namespace Inventory.Infrastructure.Persistence.Migrations
                     b.Navigation("Warehouse");
                 });
 
+            modelBuilder.Entity("Inventory.Domain.Entities.UnitOfMeasure", b =>
+                {
+                    b.HasOne("Inventory.Domain.Entities.UnitOfMeasure", "BaseUnit")
+                        .WithMany()
+                        .HasForeignKey("BaseUnitId");
+
+                    b.Navigation("BaseUnit");
+                });
+
+            modelBuilder.Entity("Inventory.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("Products");
+
+                    b.Navigation("SubCategories");
+                });
+
             modelBuilder.Entity("Inventory.Domain.Entities.Product", b =>
                 {
                     b.Navigation("ProductStocks");
+                });
+
+            modelBuilder.Entity("Inventory.Domain.Entities.UnitOfMeasure", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Inventory.Domain.Entities.Warehouse", b =>

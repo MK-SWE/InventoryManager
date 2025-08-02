@@ -1,3 +1,4 @@
+using System.Data;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using Inventory.Infrastructure.Persistence.Context;
@@ -20,31 +21,57 @@ public class BaseRepository<T>(AppDbContext context) : IRepository<T> where T : 
 
     public virtual async Task<int> AddAsync(T entity, CancellationToken ct = default)
     {
+        entity.CreatedDate = DateTime.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
+        
         await Set.AddAsync(entity, ct);
-        await SaveChangesWithId(entity);
+        await _context.SaveChangesAsync(ct);
         return entity.Id;
     }
 
     public virtual async Task UpdateAsync(T entity, CancellationToken ct = default)
     {
-        Set.Update(entity);
-        await _context.SaveChangesAsync(ct);
+        entity.LastModifiedDate = DateTime.UtcNow;
+        
+        try
+        {
+            Set.Update(entity);
+            await _context.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            var entry = ex.Entries.Single();
+            var databaseValues = await entry.GetDatabaseValuesAsync(ct);
+            
+            if (databaseValues == null)
+            {
+                throw new DBConcurrencyException("The record was deleted by another user");
+            }
+            
+            entry.OriginalValues.SetValues(databaseValues);
+            await _context.SaveChangesAsync(ct);
+        }
     }
     
     public virtual async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
     {
         var entity = await Set.FindAsync([id], ct);
-        if (entity == null) return false;
+        if (entity == null || entity.IsDeleted) 
+            return false;
     
         entity.IsDeleted = true;
         entity.LastModifiedDate = DateTime.UtcNow;
         await _context.SaveChangesAsync(ct);
         return true;
     }
-
-    private async Task<int> SaveChangesWithId(T entity)
+    
+    public virtual async Task<bool> HardDeleteAsync(int id, CancellationToken ct = default)
     {
-        await _context.SaveChangesAsync();
-        return (int)entity.GetType().GetProperty("Id")!.GetValue(entity)!;
+        var entity = await Set.FindAsync([id], ct);
+        if (entity == null) 
+            return false;
+        
+        Set.Remove(entity);
+        return await _context.SaveChangesAsync(ct) > 0;
     }
 }

@@ -11,11 +11,11 @@ public class AppDbContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Warehouse> Warehouses { get; set; }
     public DbSet<ProductStock> ProductStocks { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<UnitOfMeasure> UnitOfMeasures { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // modelBuilder.Entity<BaseEntity>().HasQueryFilter(e => !e.IsDeleted);
-        
         modelBuilder.Entity<Product>().ToTable("Products").HasQueryFilter(e => e.IsDeleted != true);
         modelBuilder.Entity<Product>(entity => 
         {
@@ -23,6 +23,9 @@ public class AppDbContext : DbContext
                 .IsRowVersion()
                 .HasDefaultValue(Array.Empty<byte>());
             entity.HasIndex(p => p.SKU).IsUnique();
+            entity.Property(e => e.RowVersion)
+                .IsConcurrencyToken()
+                .HasDefaultValue(Array.Empty<byte>());
         });
         
         modelBuilder.Entity<Warehouse>().ToTable("Warehouses").HasQueryFilter(e => e.IsDeleted != true);
@@ -32,6 +35,9 @@ public class AppDbContext : DbContext
                 .IsRowVersion()
                 .HasDefaultValue(Array.Empty<byte>());
             entity.HasIndex(w => w.WarehouseCode).IsUnique();
+            entity.Property(e => e.RowVersion)
+                .IsConcurrencyToken()
+                .HasDefaultValue(Array.Empty<byte>());
         });
         
         modelBuilder.Entity<ProductStock>().ToTable("ProductStocks").HasQueryFilter(e => e.IsDeleted != true);
@@ -50,7 +56,23 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
             
             entity.Property(e => e.RowVersion)
-                .IsRowVersion()
+                .IsConcurrencyToken()
+                .HasDefaultValue(Array.Empty<byte>());
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.ToTable("Categories").HasQueryFilter(c => !c.IsDeleted);
+            entity.Property(c => c.RowVersion)
+                .IsConcurrencyToken()
+                .HasDefaultValue(Array.Empty<byte>());
+        });
+    
+        modelBuilder.Entity<UnitOfMeasure>(entity =>
+        {
+            entity.ToTable("UnitOfMeasures").HasQueryFilter(u => !u.IsDeleted);
+            entity.Property(u => u.RowVersion)
+                .IsConcurrencyToken()
                 .HasDefaultValue(Array.Empty<byte>());
         });
     }

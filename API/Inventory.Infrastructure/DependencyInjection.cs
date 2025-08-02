@@ -21,6 +21,10 @@ public static class DependencyInjection
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IProductStockRepository, ProductStockRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<BaseRepository<Category>, CategoryRepository>();
+        services.AddScoped<IRepository<UnitOfMeasure>, BaseRepository<UnitOfMeasure>>();
+        services.AddScoped<BaseRepository<UnitOfMeasure>>(sp => 
+            (BaseRepository<UnitOfMeasure>)sp.GetRequiredService<IRepository<UnitOfMeasure>>());
         
         return services;
     }
