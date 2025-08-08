@@ -13,7 +13,7 @@ public static class ValidationHelper
         if (!price.HasValue) return false;
         
         decimal value = price.Value;
-        return value >= 0 && 
+        return value > 0 && 
                value <= 10_000_000 &&
                decimal.Round(value, decimalPlaces) == value;
     }
