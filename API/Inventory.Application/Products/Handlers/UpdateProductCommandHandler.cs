@@ -25,7 +25,7 @@ public class UpdateProductCommandHandler: IRequestHandler<UpdateProductCommand, 
             var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
             if (product == null) throw new KeyNotFoundException();
     
-            Product newProduct = _mapper.Map(request.UpdateProductDto, product);
+            Product newProduct = _mapper.Map(request.UpdateProductCommandDto, product);
             await _productRepository.UpdateAsync(newProduct, cancellationToken);
             return product;
             

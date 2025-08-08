@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Inventory.Application.Products.Commands;
 
-public sealed record UpdateProductCommand(int Id, UpdateProductDto UpdateProductDto): IRequest<Product>;
+public sealed record UpdateProductCommand(int Id, UpdateProductCommandDto UpdateProductCommandDto): IRequest<Product>;

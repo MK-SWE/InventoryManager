@@ -35,29 +35,29 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
 
         var tasks = new List<Task>();
 
-        if (!string.IsNullOrEmpty(command.UpdateProductDto.SKU) 
-            && !command.UpdateProductDto.SKU.Equals(product.SKU, StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrEmpty(command.UpdateProductCommandDto.SKU) 
+            && !command.UpdateProductCommandDto.SKU.Equals(product.SKU, StringComparison.OrdinalIgnoreCase))
         {
             tasks.Add(_validationHelper.ValidateSkuAsync(
-                command.UpdateProductDto.SKU,
+                command.UpdateProductCommandDto.SKU,
                 context,
                 ct
             ));
         }
 
-        if (command.UpdateProductDto.CategoryId.HasValue)
+        if (command.UpdateProductCommandDto.CategoryId.HasValue)
         {
             tasks.Add(_validationHelper.ValidateCategoryAsync(
-                command.UpdateProductDto.CategoryId.Value,
+                command.UpdateProductCommandDto.CategoryId.Value,
                 context,
                 ct
             ));
         }
 
-        if (command.UpdateProductDto.UnitOfMeasureId.HasValue)
+        if (command.UpdateProductCommandDto.UnitOfMeasureId.HasValue)
         {
             tasks.Add(_validationHelper.ValidateUnitOfMeasureAsync(
-                command.UpdateProductDto.UnitOfMeasureId.Value,
+                command.UpdateProductCommandDto.UnitOfMeasureId.Value,
                 context,
                 ct
             ));

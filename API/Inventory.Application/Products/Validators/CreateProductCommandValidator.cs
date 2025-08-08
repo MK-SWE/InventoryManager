@@ -20,8 +20,8 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
         ValidationContext<CreateProductCommand> context, 
         CancellationToken ct)
     {
-        await _validationHelper.ValidateSkuAsync(command.CreateProductDto.SKU, context, ct);
-        await _validationHelper.ValidateCategoryAsync(command.CreateProductDto.CategoryId, context, ct);
-        await _validationHelper.ValidateUnitOfMeasureAsync(command.CreateProductDto.UnitOfMeasureId, context, ct);
+        await _validationHelper.ValidateSkuAsync(command.CreateProductCommandDto.SKU, context, ct);
+        await _validationHelper.ValidateCategoryAsync(command.CreateProductCommandDto.CategoryId, context, ct);
+        await _validationHelper.ValidateUnitOfMeasureAsync(command.CreateProductCommandDto.UnitOfMeasureId, context, ct);
     }
 }
