@@ -56,7 +56,7 @@ public class ProductsStockController: BaseController
     /// <returns>A single Product with stock or Error not found</returns>
     /// <exception cref="KeyNotFoundException"></exception>
     [HttpGet]
-    [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProductWithStocksResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProductStockResponseDto>> GetByProductIdWithStock([FromRoute] int productId)
