@@ -26,7 +26,7 @@ public static class DependencyInjection
         // AutoMapper with assembly scanning
         services.AddAutoMapper(cfg =>
         {
-            cfg.AddProfile<MappingProfile>();
+            cfg.AddProfile<ApplicationMappingProfile>();
         });
 
         services.AddScoped<ProductValidationHelper>();

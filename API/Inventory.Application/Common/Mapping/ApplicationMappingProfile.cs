@@ -7,12 +7,12 @@ namespace Inventory.Application.Common.Mapping;
 
 
 
-public class MappingProfile : Profile
+public class ApplicationMappingProfile : Profile
 {
-    public MappingProfile()
+    public ApplicationMappingProfile()
     {
-        CreateMap<CreateProductDto, Product>();
-        CreateMap<UpdateProductDto, Product>()
+        CreateMap<CreateProductCommandDto, Product>();
+        CreateMap<UpdateProductCommandDto, Product>()
             .ForMember(dest => dest.SKU, opt => opt.MapFrom((src, dest) => src.SKU ?? dest.SKU))
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom((src, dest) => src.ProductName ?? dest.ProductName))
             .ForMember(dest => dest.ProductDescription, opt => opt.MapFrom((src, dest) => src.ProductDescription ?? dest.ProductDescription))
