@@ -32,7 +32,7 @@ public class ProductsController: BaseController
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<int>> CreateNewProduct([FromBody] CreateProductRequestDto productDto)
     {
-        var product = _mapper.Map<CreateProductDto>(productDto);
+        var product = _mapper.Map<CreateProductCommandDto>(productDto);
         var request = new CreateProductCommand(product);
         var productId = await _mediator.Send(request);
         return CreatedAtRoute(
@@ -52,26 +52,7 @@ public class ProductsController: BaseController
     {
         var request = new GetAllProductsQuery();
         IReadOnlyList<Product> products = await _mediator.Send(request);
-        var responseDtos = new GetProductsResponseDto[products.Count];
-        for (int i = 0; i < products.Count; i++)
-        {
-            var product = products[i];
-            responseDtos[i] = new GetProductsResponseDto()
-            {
-                SKU = product.SKU,
-                ProductName = product.ProductName,
-                ProductDescription = product.ProductDescription,
-                CategoryId = product.CategoryId,
-                UnitOfMeasureId = product.UnitOfMeasureId,
-                UnitPrice = product.UnitPrice,
-                ReorderLevel = product.ReorderLevel,
-                Weight = product.Weight,
-                Volume = product.Volume,
-                CreatedDate = product.CreatedDate,
-                LastModifiedDate = product.LastModifiedDate,
-                IsActive = product.IsActive
-            };
-        }
+        var responseDtos = _mapper.Map<List<GetProductsResponseDto>>(products);
         return Ok(responseDtos);
     }
     
@@ -88,6 +69,8 @@ public class ProductsController: BaseController
     {
         var request = new GetProductQuery(productId);
         var response = await _mediator.Send(request);
+        if (response == null)
+            return NotFound();
         var product = _mapper.Map<GetProductsResponseDto>(response);
         return Ok(product);
     }
@@ -104,7 +87,7 @@ public class ProductsController: BaseController
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Product>> UpdateProduct([FromRoute] int productId, [FromBody] UpdateProductRequestDto updateDto)
     {
-        var productDto = _mapper.Map<UpdateProductDto>(updateDto);
+        var productDto = _mapper.Map<UpdateProductCommandDto>(updateDto);
         var request = new UpdateProductCommand(productId, productDto);
         var product = await _mediator.Send(request);
         var response = _mapper.Map<GetProductsResponseDto>(product);
