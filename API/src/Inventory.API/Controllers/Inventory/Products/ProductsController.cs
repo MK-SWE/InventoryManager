@@ -4,10 +4,12 @@ using Inventory.Application.Products.DTOs;
 using Inventory.Application.Products.Queries;
 using Inventory.Domain.Entities;
 using Inventory.Shared.DTOs.Products;
+using Inventory.Shared.Enums;
+using Inventory.Shared.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inventory.API.Controllers.Products;
+namespace Inventory.API.Controllers.Inventory.Products;
 
 public class ProductsController: BaseController
 {
@@ -19,7 +21,6 @@ public class ProductsController: BaseController
         _mediator = mediator;
         _mapper = mapper;
     }
-    private record Create(int Id);
     
     /// <summary>
     /// Create new product in the database
@@ -27,10 +28,10 @@ public class ProductsController: BaseController
     /// <param name="productDto">The product data to create</param>
     /// <returns>New created product id</returns>
     [HttpPost]
-    [ProducesResponseType( typeof(Create) ,StatusCodes.Status201Created)]
+    [ProducesResponseType( typeof(CreateEntityResult) ,StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<int>> CreateNewProduct([FromBody] CreateProductRequestDto productDto)
+    public async Task<ActionResult<CreateEntityResult>> CreateNewProduct([FromBody] CreateProductRequestDto productDto)
     {
         var product = _mapper.Map<CreateProductCommandDto>(productDto);
         var request = new CreateProductCommand(product);
@@ -38,7 +39,12 @@ public class ProductsController: BaseController
         return CreatedAtRoute(
             nameof(GetProductById), 
             routeValues: new { productId },
-            value: new { Id = productId });
+            value: new CreateEntityResult
+            {
+                OperationStatus = nameof(SystemOperationStatus.Completed),
+                Result = "Product created successfully",
+                NewEntityId = productId,
+            });
     }
     
     /// <summary>
@@ -48,12 +54,16 @@ public class ProductsController: BaseController
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<GetProductsResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> GetAllProducts()
+    public async Task<ActionResult> GetAllProducts([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
-        var request = new GetAllProductsQuery();
-        IReadOnlyList<Product> products = await _mediator.Send(request);
-        var responseDtos = _mapper.Map<List<GetProductsResponseDto>>(products);
-        return Ok(responseDtos);
+        var request = new GetAllProductsQuery(pageNumber, pageSize);
+        (IReadOnlyList<GetProductsResponseDto> Items, int TotalCount) response = await _mediator.Send(request);
+        var products = _mapper.Map<List<GetProductsResponseDto>>(response.Items);
+        return Ok(new
+        {
+            products,
+            response.TotalCount
+        });
     }
     
     /// <summary>
@@ -65,14 +75,13 @@ public class ProductsController: BaseController
     [ProducesResponseType(typeof(GetProductsResponseDto),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Product>> GetProductById([FromRoute] int productId)
+    public async Task<ActionResult<GetProductsResponseDto>> GetProductById([FromRoute] int productId)
     {
         var request = new GetProductQuery(productId);
         var response = await _mediator.Send(request);
         if (response == null)
             return NotFound();
-        var product = _mapper.Map<GetProductsResponseDto>(response);
-        return Ok(product);
+        return Ok(response);
     }
     
     /// <summary>
@@ -85,13 +94,18 @@ public class ProductsController: BaseController
     [ProducesResponseType(typeof(GetProductsResponseDto),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Product>> UpdateProduct([FromRoute] int productId, [FromBody] UpdateProductRequestDto updateDto)
+    public async Task<ActionResult<SystemOperationResult>> UpdateProduct([FromRoute] int productId, [FromBody] UpdateProductRequestDto updateDto)
     {
         var productDto = _mapper.Map<UpdateProductCommandDto>(updateDto);
         var request = new UpdateProductCommand(productId, productDto);
         var product = await _mediator.Send(request);
         var response = _mapper.Map<GetProductsResponseDto>(product);
-        return Ok(response);
+        return Ok(new SystemOperationResult
+        {
+            OperationStatus = nameof(SystemOperationStatus.Completed),
+            Result = "Product updated successfully",
+            Payload = response
+        });
     }
     
     /// <summary>
@@ -102,10 +116,14 @@ public class ProductsController: BaseController
     [HttpDelete("{productId:int}", Name = "DeleteProduct")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteProduct([FromRoute] int productId)
+    public async Task<ActionResult<SystemOperationResult>> DeleteProduct([FromRoute] int productId)
     {
         var request = new DeleteProductCommand(productId);
         await _mediator.Send(request);
-        return NoContent();
+        return Ok(new SystemOperationResult
+        {
+            OperationStatus = nameof(SystemOperationStatus.Completed),
+            Result = "Product deleted successfully",
+        });
     }
 }

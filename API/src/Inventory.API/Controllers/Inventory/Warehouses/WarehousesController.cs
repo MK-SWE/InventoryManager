@@ -2,10 +2,11 @@ using Inventory.Application.Warehouses.Commands;
 using Inventory.Application.Warehouses.DTOs;
 using Inventory.Application.Warehouses.Queries;
 using Inventory.Domain.Entities;
+using Inventory.Shared.DTOs.Warehouses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inventory.API.Controllers.Warehouses;
+namespace Inventory.API.Controllers.Inventory.Warehouses;
 
 public class WarehousesController: BaseController
 {
@@ -40,12 +41,12 @@ public class WarehousesController: BaseController
     /// </summary>
     /// <returns>A List of Warehouses</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<Warehouse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<GetWarehouseResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IReadOnlyList<Warehouse>>> GetAllWarehouses()
     {
         var request = new GetAllWarehousesQuery();
-        IReadOnlyList<Warehouse> warehouses = await _mediator.Send(request);
+        IReadOnlyList<GetWarehouseResponseDto> warehouses = await _mediator.Send(request);
         return Ok(warehouses);
     }
     
@@ -55,14 +56,30 @@ public class WarehousesController: BaseController
     /// <param name="id">The warehouse id</param>
     /// <returns>A single Warehouse or Error not found</returns>
     [HttpGet("{id:int}", Name = "GetWarehouseById")]
-    [ProducesResponseType(typeof(Warehouse),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetWarehouseResponseDto),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Warehouse>> GetWarehouseById([FromRoute] int id)
+    public async Task<ActionResult<GetWarehouseResponseDto>> GetWarehouseById([FromRoute] int id)
     {
         var request = new GetWarehouseQuery(id);
         var warehouse = await _mediator.Send(request);
         return Ok(warehouse);
+    }
+
+    /// <summary>
+    /// Get a warehouse with its stock by its id
+    /// </summary>
+    /// <param name="id">The warehouse id</param>
+    /// <returns>A single Warehouse with its stock or Error not found </returns>
+    [HttpGet("{id:int}/stock", Name = "GetWarehouseStockById")]
+    [ProducesResponseType(typeof(GetWarehouseResponseDto),StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<GetWarehouseWithStockResponseDto?>> GetWarehouseStockById(int id)
+    {
+        var request = new GetWarehouseStockQuery(id);
+        var response = await _mediator.Send(request);
+        return Ok(response);
     }
     
     /// <summary>
