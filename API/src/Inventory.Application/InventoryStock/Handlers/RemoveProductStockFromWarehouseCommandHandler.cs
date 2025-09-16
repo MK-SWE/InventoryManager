@@ -20,7 +20,7 @@ public class RemoveProductStockFromWarehouseCommandHandler: IRequestHandler<Remo
         var productStock = await _productStockRepository.GetByProductAndWarehouseAsync(request.ProductId, request.WarehouseId, cancellationToken);
         if (productStock is not null)
         {
-            await _productStockRepository.DeleteAsync(productStock, cancellationToken);
+            await _productStockRepository.DeleteAsync(productStock.Id, cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
     }

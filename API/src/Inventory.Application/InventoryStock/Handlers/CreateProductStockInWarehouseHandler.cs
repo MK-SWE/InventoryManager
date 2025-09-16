@@ -27,8 +27,7 @@ public class CreateProductStockInWarehouseHandler
         var warehouseId = request.CreateProductStockInWarehouseDto.WarehouseId;
         var initialQuantity = request.CreateProductStockInWarehouseDto.Amount;
         
-        var productStock = ProductStock.Create(productId, warehouseId);
-        productStock.AddStock(initialQuantity);
+        var productStock = ProductStock.Create(productId, warehouseId, initialQuantity);
         await _productStockRepository.AddAsync(productStock, cancellationToken);
         
         await _unitOfWork.CommitAsync(cancellationToken);

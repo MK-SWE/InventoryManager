@@ -10,10 +10,10 @@ public class ApiMappingProfile: Profile
     public ApiMappingProfile()
     {
         CreateMap<CreateProductRequestDto, CreateProductCommandDto>()
-            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));;
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         CreateMap<UpdateProductRequestDto, UpdateProductCommandDto>()
-            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));;
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         CreateMap<Product, GetProductsResponseDto>()
-            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));;
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }

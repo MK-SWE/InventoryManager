@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using Inventory.Application.Warehouses.Commands;
+﻿using Inventory.Application.Warehouses.Commands;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
+using Inventory.Infrastructure.Persistence.Context;
 using MediatR;
 
 namespace Inventory.Application.Warehouses.Handlers;
@@ -9,19 +9,27 @@ namespace Inventory.Application.Warehouses.Handlers;
 public class CreateWarehouseCommandHandler: IRequestHandler<CreateWarehouseCommand, int>
 {
     private readonly IWarehouseRepository _warehouseRepository;
-    private readonly IMapper _mapper;
+    private readonly AppDbContext _context;
 
-    public CreateWarehouseCommandHandler(
-        IWarehouseRepository warehouseRepository,
-        IMapper mapper)
+    public CreateWarehouseCommandHandler(IWarehouseRepository warehouseRepository, AppDbContext context )
     {
         _warehouseRepository = warehouseRepository;
-        _mapper = mapper;
+        _context = context;
     }
     
     public async Task<int> Handle(CreateWarehouseCommand request, CancellationToken cancellationToken)
     {
-        Warehouse warehouse = _mapper.Map<Warehouse>(request.CreateWarehouseDto);
+        var dto = request.CreateWarehouseDto;
+        var address = request.CreateWarehouseDto.WarehouseAddress;
+        Warehouse warehouse = Warehouse.Create(dto.WarehouseCode, 
+            dto.WarehouseName, 
+            dto.Capacity, 
+            address.Line1, 
+            address.City, 
+            address.Country, 
+            address.Line2, 
+            address.State, 
+            address.PostalCode);
 
         int warehouseId = await _warehouseRepository.AddAsync(warehouse, cancellationToken);
         

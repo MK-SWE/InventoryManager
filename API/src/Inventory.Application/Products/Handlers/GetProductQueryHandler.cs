@@ -2,11 +2,12 @@
 using Inventory.Application.Products.Queries;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
+using Inventory.Shared.DTOs.Products;
 using MediatR;
 
 namespace Inventory.Application.Products.Handlers;
 
-public class GetProductQueryHandler: IRequestHandler<GetProductQuery, Product?>
+public class GetProductQueryHandler: IRequestHandler<GetProductQuery, GetProductsResponseDto?>
 {
     private readonly IProductRepository _productsRepository;
 
@@ -15,11 +16,11 @@ public class GetProductQueryHandler: IRequestHandler<GetProductQuery, Product?>
         _productsRepository = productsRepository;
     }
 
-    public async Task<Product?> Handle(GetProductQuery request, CancellationToken cancellationToken)
+    public async Task<GetProductsResponseDto?> Handle(GetProductQuery request, CancellationToken cancellationToken)
     {
         try
         {
-            return await _productsRepository.GetByIdAsync(request.Id);
+            return await _productsRepository.GetByIdWithDetailsAsync(request.Id, cancellationToken);
         }
         catch (KeyNotFoundException ex)
         {

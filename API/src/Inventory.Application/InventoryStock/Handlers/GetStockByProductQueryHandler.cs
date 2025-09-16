@@ -1,5 +1,4 @@
 using Inventory.Application.Common.Exceptions;
-using Inventory.Application.InventoryStock.DTOs;
 using Inventory.Application.InventoryStock.Queries;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;

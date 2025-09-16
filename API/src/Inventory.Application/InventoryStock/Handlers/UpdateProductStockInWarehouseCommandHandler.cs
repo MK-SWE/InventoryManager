@@ -21,7 +21,7 @@ public class UpdateProductStockInWarehouseCommandHandler: IRequestHandler<Update
         ProductStock? productStock = await _productStockRepository.GetByProductAndWarehouseAsync(request.ProductId, request.WarehouseId, cancellationToken);
         if (productStock is not null)
         {
-            productStock.AdjustStatusQuantity(request.StockStatus, request.Amount);
+            productStock.AdjustStock(request.Amount);
             await _productStockRepository.UpdateAsync(productStock, cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
         }

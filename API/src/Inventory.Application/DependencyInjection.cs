@@ -1,9 +1,15 @@
 ﻿using FluentValidation;
 using Inventory.Application.Common.Behaviors;
+using Inventory.Application.Common.HelpingMethods;
+using Inventory.Application.Common.Interfaces;
 using Inventory.Application.Common.Mapping;
-using Inventory.Application.Common.Services;
+using Inventory.Application.InventoryStock.Services;
 using Inventory.Application.Products.Validators;
-using Inventory.Domain.Interfaces.Services;
+using Inventory.Application.StockReservation.Services;
+using Inventory.Application.Transactions.Services;
+using Inventory.Domain.Entities;
+using Inventory.Domain.Interfaces;
+using Inventory.Infrastructure.Persistence.Repositories;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,7 +38,11 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ProductValidationHelper>();
-        services.AddScoped<IStockTransactionService, StockTransactionService>();
+        services.AddScoped<IInventoryTransactionService, InventoryTransactionService>();
+        services.AddScoped<IInventoryStockService, InventoryStockService>();
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IInventoryStockReservationService, InventoryStockReservationService>();
+        services.AddScoped<IInventoryStockReservationRepository, InventoryStockReservationRepositoryRepository>();
         
         return services;
     }

@@ -4,7 +4,6 @@ using Inventory.Domain.Interfaces;
 
 namespace Inventory.Application.Products.Validators;
 
-// UpdateProductCommandValidator.cs
 public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {
     private readonly ProductValidationHelper _validationHelper;

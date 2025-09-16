@@ -23,13 +23,5 @@ public class ApplicationMappingProfile : Profile
             .ForMember(dest => dest.Weight, opt => opt.MapFrom((src, dest) => src.Weight ?? dest.Weight))
             .ForMember(dest => dest.Volume, opt => opt.MapFrom((src, dest) => src.Volume ?? dest.Volume))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom((src, dest) => src.IsActive ?? dest.IsActive));
-        
-        CreateMap<CreateWarehouseDto, Warehouse>();
-        CreateMap<UpdateWarehouseDto, Warehouse>()
-            .ForMember(dest => dest.WarehouseCode, opt => opt.MapFrom((src, dest) => src.WarehouseCode ?? dest.WarehouseCode))
-            .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom((src, dest) => src.WarehouseName ?? dest.WarehouseName))
-            .ForMember(dest => dest.WarehouseAddress, opt => opt.MapFrom((src, dest) => src.WarehouseAddress ?? dest.WarehouseAddress)) 
-            .ForMember(dest => dest.Capacity, opt => opt.MapFrom((src, dest) => src.Capacity ?? dest.Capacity))
-            .ForMember(dest => dest.IsActive, opt => opt.MapFrom((src, dest) => src.IsActive ?? dest.IsActive));
     }
 }
