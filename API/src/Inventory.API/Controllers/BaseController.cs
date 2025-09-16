@@ -5,4 +5,4 @@ namespace Inventory.API.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Produces("application/json")]
-public abstract class BaseController: Controller { }
+public abstract class BaseController : ControllerBase { }
