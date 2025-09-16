@@ -50,9 +50,6 @@ public class FluentValidationFilter : IAsyncActionFilter, IExceptionFilter
         }
         await next();
     }
-
-    public void OnActionExecuted(ActionExecutedContext context) { }
-    
     
     public void OnException(ExceptionContext context)
     {

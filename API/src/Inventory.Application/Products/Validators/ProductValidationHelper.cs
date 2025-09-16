@@ -1,7 +1,6 @@
 using FluentValidation;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
-using Inventory.Infrastructure.Persistence.Repositories;
 
 namespace Inventory.Application.Products.Validators;
 

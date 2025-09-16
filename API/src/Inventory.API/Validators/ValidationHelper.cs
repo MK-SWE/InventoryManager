@@ -6,15 +6,15 @@ namespace Inventory.API.Validators;
 public static class ValidationHelper
 {
     private const int RegexTimeoutMs = 250;
-    private static readonly string[] ReservedWords = { "admin", "root", "system", "null", "undefined" };
+    private static readonly string[] DefaultReservedWords = { "admin", "root", "system", "null", "undefined" };
 
-    public static bool BeAValidPrice(decimal? price, int decimalPlaces = 2)
+    public static bool BeAValidPrice(decimal? price, int decimalPlaces = 2, decimal maxValue = 10_000_000)
     {
         if (!price.HasValue) return false;
         
         decimal value = price.Value;
         return value > 0 && 
-               value <= 10_000_000 &&
+               value <= maxValue &&
                decimal.Round(value, decimalPlaces) == value;
     }
 
@@ -25,14 +25,14 @@ public static class ValidationHelper
                quantity <= max;
     }
 
-    public static bool BeAValidProductName(string? name)
+    public static bool BeAValidName(string? name, int minLength = 2, int maxLength = 100)
     {
         if (string.IsNullOrWhiteSpace(name)) return false;
         
         try
         {
             return Regex.IsMatch(name, 
-                @"^[\p{L}0-9\s'\-\.\,&:!()%@\#\$\*\+]{2,100}$", 
+                $@"^[\p{{L}}0-9\s'\-\.\,&:!()%@\#\$\*\+]{{{minLength},{maxLength}}}$", 
                 RegexOptions.Compiled, 
                 TimeSpan.FromMilliseconds(RegexTimeoutMs));
         }
@@ -44,6 +44,8 @@ public static class ValidationHelper
 
     public static bool ContainsHtmlTags(string input)
     {
+        if (string.IsNullOrEmpty(input)) return false;
+
         try
         {
             return Regex.IsMatch(input, 
@@ -59,6 +61,8 @@ public static class ValidationHelper
 
     public static bool ContainsSqlInjectionPatterns(string input)
     {
+        if (string.IsNullOrEmpty(input)) return false;
+
         var patterns = new[] 
         {
             ";", "--", "/*", "*/", "xp_", 
@@ -71,17 +75,43 @@ public static class ValidationHelper
             input.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0);
     }
 
-    public static bool ContainsReservedWords(string? input)
+    public static bool ContainsReservedWords(string? input, string[]? reservedWords = null)
     {
         if (string.IsNullOrWhiteSpace(input)) return false;
         
-        return ReservedWords.Any(word => 
+        var wordsToCheck = reservedWords ?? DefaultReservedWords;
+        return wordsToCheck.Any(word => 
             input.Contains(word, StringComparison.OrdinalIgnoreCase));
     }
 
     public static bool ContainsEmoji(string input)
     {
+        if (string.IsNullOrEmpty(input)) return false;
+        
         return input.Any(c => CharUnicodeInfo.GetUnicodeCategory(c) == 
                               UnicodeCategory.OtherSymbol);
+    }
+
+    public static bool MatchPattern(string input, string pattern)
+    {
+        if (String.IsNullOrWhiteSpace(input) || String.IsNullOrWhiteSpace(pattern)) 
+            return false;
+            
+        try
+        {
+            return Regex.IsMatch(
+                input,
+                pattern,
+                RegexOptions.None,
+                TimeSpan.FromMilliseconds(RegexTimeoutMs));
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false; // Timeout means we consider it invalid
+        }
+        catch (ArgumentException)
+        {
+            return false; // Invalid pattern means we consider it invalid
+        }
     }
 }
