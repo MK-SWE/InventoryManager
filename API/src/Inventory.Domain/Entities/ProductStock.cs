@@ -1,75 +1,77 @@
-using System.Collections.ObjectModel;
-using Inventory.Domain.Enums;
 using Inventory.Domain.Exceptions;
 
 namespace Inventory.Domain.Entities;
 
-public class ProductStock: BaseEntity
+public class ProductStock : BaseEntity
 {
     public int ProductId { get; init; }
-    public int WarehouseId { get; init; }
-    public int Quantity => _statusQuantities.Values.Sum();
-
     public Product Product { get; init; } = null!;
+    public int WarehouseId { get; init; }
     public Warehouse Warehouse { get; set; } = null!;
-
-    private readonly Dictionary<StockStatus, int> _statusQuantities;
-    public IReadOnlyDictionary<StockStatus, int> StatusQuantities => 
-        new ReadOnlyDictionary<StockStatus, int>(_statusQuantities);
+    public int Quantity { get; set; }
     
-    public ProductStock()
-    {
-        // Initialize all statuses with 0 quantity
-        _statusQuantities = Enum.GetValues(typeof(StockStatus))
-            .Cast<StockStatus>()
-            .ToDictionary(status => status, _ => 0);
-    }
+    // ToDo: Implement stock status management on a separate Database table and Domain entity,
+    // this is just a placeholder for now
+    public int AvailableStock { get; set; }
+    public int OnHoldStock { get; set; }
+    public int QuarantinedStock { get; set; }
+    public int QualityControlStock { get; set; }
+    public int ReturnedStock { get; set; }
+    public int DamagedStock { get; set; }
 
-    public static ProductStock Create(int productId, int warehouseId)
-        => new()
+    public static ProductStock Create(int productId, int warehouseId, int quantity)
+    {
+        ProductStock productStock = new ProductStock()
         {
             ProductId = productId,
             WarehouseId = warehouseId,
         };
-    
-    public void AddStock(int amount, StockStatus status = StockStatus.Available)
+        productStock.AddStock(quantity);
+        return productStock;
+    }
+
+    public void AddStock(int quantity)
     {
-        if (amount < 0) 
+        if (quantity < 0)
             throw new InvalidStockOperationException("stock addition", "Quantity must be positive");
-        _statusQuantities[status] += amount;
+        AvailableStock += quantity;
+        Quantity += quantity;
     }
 
-    public void RemoveStock(int amount, StockStatus status)
+    public void AdjustStock(int quantity)
     {
-        if (amount < 0)
+        if (quantity < 0)
+            throw new InvalidStockOperationException("stock adjustment", "Quantity must be positive");
+        Quantity = quantity;
+    }
+    
+    public void ShipStock(int quantity)
+    {
+        if (quantity < 0)
+            throw new InvalidStockOperationException("stock shipment", "Quantity must be positive");
+        if (AvailableStock < quantity)
+            throw new InvalidStockOperationException("stock shipment", "Insufficient available stock");
+        AvailableStock -= quantity;
+        Quantity -= quantity;
+    }
+    
+    public void RemoveStock(int quantity)
+    {
+        if (quantity < 0)
             throw new InvalidStockOperationException("stock removal", "Quantity must be positive");
-    
-        if (_statusQuantities[status] < amount)
-            throw new InvalidStockOperationException("stock removal", $"Insufficient quantity in {status} status");
-    
-        _statusQuantities[status] -= amount;
+        if (Quantity < quantity)
+            throw new InvalidStockOperationException("stock removal", "Insufficient total stock");
+        Quantity -= quantity;
+        AvailableStock = Math.Max(AvailableStock - quantity, 0);
     }
-
-    // Move stock between statuses
-    public void MoveStock(StockStatus fromStatus, StockStatus toStatus, int amount)
+    
+    public void AllocateStock(int quantity)
     {
-        if (amount < 0)
-            throw new InvalidStockOperationException("stock movement", "Quantity must be positive");
-    
-        if (_statusQuantities[fromStatus] < amount)
-            throw new InvalidStockOperationException("stock movement", $"Insufficient quantity in {fromStatus} status");
-    
-        _statusQuantities[fromStatus] -= amount;
-        _statusQuantities[toStatus] += amount;
+        if (quantity < 0)
+            throw new InvalidStockOperationException("stock allocation", "Quantity must be positive");
+        if (AvailableStock < quantity)
+            throw new InvalidStockOperationException("stock allocation", "Insufficient available stock");
+        AvailableStock -= quantity;
+        OnHoldStock += quantity;
     }
-    
-    public void AdjustStatusQuantity(StockStatus status, int newQuantity)
-    {
-        if (newQuantity < 0)
-            throw new InvalidStockOperationException("status adjustment", "Quantity cannot be negative");
-    
-        _statusQuantities[status] = newQuantity;
-    }
-    
-    public int GetQuantityByStatus(StockStatus status) => _statusQuantities[status];
-};
+}

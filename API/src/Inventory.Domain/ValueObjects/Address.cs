@@ -1,12 +1,23 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Inventory.Domain.ValueObjects;
 
-public sealed record Address(
-    [Required, StringLength(100)] string Line1,
-    [StringLength(100)] string? Line2,
-    [Required, StringLength(50)] string City,
-    [Required, StringLength(50)] string State,
-    [Required, StringLength(20)] string PostalCode,
-    [Required, StringLength(50)] string Country
-);
+public sealed record Address
+{
+    public required string Line1 { get ; set; }
+    public string? Line2 { get ; set; }
+    public required string City { get ; set; }
+    public string? State { get ; set; }
+    public string? PostalCode { get ; set; }
+    public required string Country { get ; set; }
+    public static Address Create(string line1, string city, string country, string? line2, string? state, string? postalCode)
+    {
+        return new Address
+        {
+            Line1 = line1,
+            Line2 = line2,
+            City = city,
+            State = state,
+            PostalCode = postalCode,
+            Country = country,
+        };
+    }
+}
