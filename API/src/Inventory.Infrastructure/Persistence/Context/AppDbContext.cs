@@ -1,4 +1,5 @@
 ﻿using Inventory.Domain.Entities;
+using Inventory.Domain.ValueObjects;
 
 namespace Inventory.Infrastructure.Persistence.Context;
 
@@ -11,9 +12,12 @@ public class AppDbContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Warehouse> Warehouses { get; set; }
     public DbSet<ProductStock> ProductStocks { get; set; }
+    // public DbSet<ProductStockStatus> ProductStockStatuses { get; set; }
+    public DbSet<InventoryStockReservation> InventoryStockReservation { get; set; }
+    public DbSet<InventoryStockReservationLine> InventoryStockReservationLine { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<UnitOfMeasure> UnitOfMeasures { get; set; }
-    public DbSet<InventoryTransactionHeader> InventoryTransactionHeaders { get; set; }
+    public DbSet<InventoryTransaction> InventoryTransactionHeaders { get; set; }
     public DbSet<InventoryTransactionLine> InventoryTransactionLines { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,19 +36,28 @@ public class AppDbContext : DbContext
         
             modelBuilder.Entity<Product>(entity => 
             {
-                entity.ToTable("Products").HasQueryFilter(e => e.IsDeleted != true);
+                entity.ToTable("Products").HasQueryFilter(e => !e.IsDeleted);
                 entity.HasIndex(p => p.SKU).IsUnique();
             });
             
             modelBuilder.Entity<Warehouse>(entity => 
             {
-                entity.ToTable("Warehouses").HasQueryFilter(e => e.IsDeleted != true);
-                entity.HasIndex(w => w.WarehouseCode).IsUnique();
+                entity.ToTable("Warehouses").HasQueryFilter(e => !e.IsDeleted);
+                entity.HasIndex(warehouse => warehouse.WarehouseCode).IsUnique();
+                entity.OwnsOne(warehouse => warehouse.WarehouseAddress, ownedNavigationBuilder =>
+                {
+                    ownedNavigationBuilder.Property(address => address.Line1);
+                    ownedNavigationBuilder.Property(address => address.Line2);
+                    ownedNavigationBuilder.Property(address => address.City);
+                    ownedNavigationBuilder.Property(address => address.State);
+                    ownedNavigationBuilder.Property(address => address.PostalCode);
+                    ownedNavigationBuilder.Property(address => address.Country);
+                });
             });
             
             modelBuilder.Entity<ProductStock>(entity =>
             {
-                entity.ToTable("ProductStocks").HasQueryFilter(e => e.IsDeleted != true);
+                entity.ToTable("ProductStocks").HasQueryFilter(e => !e.IsDeleted);
                 entity.HasIndex(ps => new { ps.ProductId, ps.WarehouseId }).IsUnique();
                 
                 entity.HasOne(ps => ps.Product)
@@ -57,6 +70,60 @@ public class AppDbContext : DbContext
                     .HasForeignKey(ps => ps.WarehouseId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+            
+            modelBuilder.Entity<ProductStockStatus>(entity =>
+            {
+                entity.ToTable("ProductStockStatuses").HasQueryFilter(e => !e.IsDeleted);
+                entity.HasKey(e => e.Id);
+        
+                entity.Property(e => e.Status)
+                    .HasConversion<int>(); // Store enum as int
+            
+                entity.Property(e => e.Quantity)
+                    .IsRequired();
+            
+                /* Relationship with ProductStock
+                // entity.HasOne(e => e.ProductStock)
+                //     .WithMany(p => p.StockStatuses)
+                //     .HasForeignKey(e => e.ProductStockId)
+                //     .OnDelete(DeleteBehavior.Cascade);
+            
+                // Unique constraint: one record per ProductStock-Status combination*/
+                
+                entity.HasIndex(e => new { e.ProductStockId, e.Status })
+                    .IsUnique();
+            });
+            
+            modelBuilder.Entity<InventoryStockReservation>(entity =>
+            {
+                entity.ToTable("InventoryStockReservation").HasQueryFilter(e => !e.IsDeleted);
+                
+                entity.HasKey(reservation => reservation.Id);
+                entity.HasIndex(reservation => reservation.ReservationReference).IsUnique();
+                entity.HasMany(reservation => reservation.ReservationLines)
+                    .WithOne(line => line.Reservation)
+                    .HasForeignKey(line => line.ReservationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.Metadata.FindNavigation(nameof(InventoryStockReservationLine))
+                    ?.SetPropertyAccessMode(PropertyAccessMode.Field);
+            });
+
+            modelBuilder.Entity<InventoryStockReservationLine>(entity =>
+            {
+                entity.ToTable("InventoryStockReservationLine").HasQueryFilter(line => !line.IsDeleted);
+                entity.HasIndex(resLine => new { resLine.ReservationId, resLine.ProductId }).IsUnique();
+                
+                entity.HasOne(line => line.Reservation)
+                    .WithMany(reservation => reservation.ReservationLines)
+                    .HasForeignKey(line => line.ReservationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+        
+                entity.HasOne(line => line.Product)
+                    .WithMany(product => product.Reservations)
+                    .HasForeignKey(line => line.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+            });
 
             modelBuilder.Entity<Category>(entity =>
             {
@@ -68,20 +135,31 @@ public class AppDbContext : DbContext
                 entity.ToTable("UnitOfMeasures").HasQueryFilter(uom => !uom.IsDeleted);
             });
 
-            modelBuilder.Entity<InventoryTransactionHeader>(entity =>
+            modelBuilder.Entity<InventoryTransaction>(entity =>
             {
                 entity.ToTable("InventoryTransactionHeaders").HasQueryFilter(header => !header.IsDeleted);
                 
-                entity.HasMany(header => header.Lines)
-                    .WithOne(line => line.Header)
-                    .HasForeignKey(line => line.TransactionHeaderId)
+                entity.HasIndex(e => e.ReferenceNumber).IsUnique();
+                entity.HasKey(e => e.Id);
+                
+                entity.HasMany(e => e.Lines)
+                    .WithOne(e => e.Header)
+                    .HasForeignKey(e => e.TransactionHeaderId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(t => t.SourceWarehouseId).IsRequired(false);
+                entity.Property(t => t.DestinationWarehouseId).IsRequired(false);
             });
 
             modelBuilder.Entity<InventoryTransactionLine>(entity =>
             {
                 entity.ToTable("InventoryTransactionLines").HasQueryFilter(line => !line.IsDeleted);
-                
+
+                entity.HasKey(e => e.Id);
+                entity.HasOne(line => line.Product)
+                    .WithMany()
+                    .HasForeignKey(line => line.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
                 entity.Property(line => line.UnitCost).HasColumnType("decimal(18,4)");
             });
         

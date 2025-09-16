@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Infrastructure.Persistence.Repositories;
 
-public class ProductStockRepository(AppDbContext context) : IProductStockRepository
+public class ProductStockRepository(AppDbContext context) : BaseRepository<ProductStock>(context), IProductStockRepository
 {
     private readonly AppDbContext _context = context;
 
@@ -26,15 +26,7 @@ public class ProductStockRepository(AppDbContext context) : IProductStockReposit
             .AsNoTracking()
             .Where(ps => ps.ProductId == productId)
             .ToListAsync(ct);
-
-    public async Task AddAsync(ProductStock stock, CancellationToken ct = default)
-        => await _context.ProductStocks.AddAsync(stock, ct);
-
-    public Task UpdateAsync(ProductStock stock, CancellationToken ct = default)
-        => Task.FromResult(_context.ProductStocks.Update(stock));
-
-    public Task DeleteAsync(ProductStock stock, CancellationToken ct = default)
-        => Task.FromResult(_context.ProductStocks.Remove(stock));
+    
 
     public async Task<IEnumerable<ProductStock>> GetByProductsIdsAsync( IEnumerable<int> productIds, CancellationToken ct = default)
     {
@@ -76,10 +68,10 @@ public class ProductStockRepository(AppDbContext context) : IProductStockReposit
         return results;
     }
     
-    public async Task AddRangeAsync(IEnumerable<ProductStock> entities, CancellationToken ct = default)
+    public async Task AddRangeAsync(IEnumerable<ProductStock> entities, CancellationToken ct )
         => await _context.ProductStocks.AddRangeAsync(entities, ct);
     
-    public Task UpdateRangeAsync(IEnumerable<ProductStock> entities, CancellationToken ct = default)
+    public Task UpdateRangeAsync(IEnumerable<ProductStock> entities, CancellationToken ct)
     {
         _context.ProductStocks.UpdateRange(entities);
         return Task.CompletedTask;

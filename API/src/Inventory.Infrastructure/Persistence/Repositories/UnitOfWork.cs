@@ -1,4 +1,3 @@
-using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using Inventory.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -7,16 +6,15 @@ namespace Inventory.Infrastructure.Persistence.Repositories;
 
 public class UnitOfWork(AppDbContext context) : IUnitOfWork
 {
-    private readonly AppDbContext _context = context;
     private IDbContextTransaction? _transaction;
 
-    public IProductRepository Products => new ProductRepository(_context);
-    public IWarehouseRepository Warehouses => new WarehouseRepository(_context);
-    public IProductStockRepository ProductStocks => new ProductStockRepository(_context);
+    public IProductRepository Products => new ProductRepository(context);
+    public IWarehouseRepository Warehouses => new WarehouseRepository(context);
+    public IProductStockRepository ProductStocks => new ProductStockRepository(context);
 
     public async Task CommitAsync(CancellationToken ct = default)
     {
-        await _context.SaveChangesAsync(ct);
+        await context.SaveChangesAsync(ct);
         
         if (_transaction != null)
         {
@@ -34,11 +32,11 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     }
 
     public async Task BeginTransactionAsync(CancellationToken ct = default)
-        => _transaction = await _context.Database.BeginTransactionAsync(ct);
+        => _transaction = await context.Database.BeginTransactionAsync(ct);
 
     public void Dispose()
     {
         _transaction?.Dispose();
-        _context.Dispose();
+        context.Dispose();
     }
 }

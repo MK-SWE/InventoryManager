@@ -2,7 +2,7 @@ using Inventory.Domain.Entities;
 
 namespace Inventory.Domain.Interfaces;
 
-public interface IProductStockRepository
+public interface IProductStockRepository: IReadRepository<ProductStock>, IWriteRepository<ProductStock>
 {
     Task<ProductStock?> GetByProductAndWarehouseAsync(
         int productId, 
@@ -12,10 +12,7 @@ public interface IProductStockRepository
     Task<IReadOnlyList<ProductStock>> GetByProductAsync(
         int productId,
         CancellationToken ct = default);
-        
-    Task AddAsync(ProductStock stock, CancellationToken ct = default);
-    Task UpdateAsync(ProductStock stock, CancellationToken ct = default);
-    Task DeleteAsync(ProductStock stock, CancellationToken ct = default);
+    
 
     Task<IEnumerable<ProductStock>> GetByProductsIdsAsync(IEnumerable<int> productIds, CancellationToken ct = default);
     

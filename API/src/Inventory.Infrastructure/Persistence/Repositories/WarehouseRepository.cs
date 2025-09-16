@@ -1,54 +1,44 @@
 ﻿using Inventory.Domain.Entities;
 using Inventory.Domain.Interfaces;
 using Inventory.Infrastructure.Persistence.Context;
+using Inventory.Shared.DTOs.ProductsStock;
+using Inventory.Shared.DTOs.Warehouses;
+using Inventory.Shared.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Infrastructure.Persistence.Repositories;
 
-public class WarehouseRepository(AppDbContext context) : IWarehouseRepository
+public class WarehouseRepository(AppDbContext context) : BaseRepository<Warehouse>(context), IWarehouseRepository
 {
     private readonly AppDbContext _context = context;
-    private DbSet<Warehouse> Set => _context.Set<Warehouse>();
 
-    public async Task<Warehouse?> GetByIdAsync(int id, CancellationToken ct = default)
+    public async Task<GetWarehouseWithStockResponseDto?> GetWarehouseStocks(int id, CancellationToken ct = default)
     {
-        return await Set.FindAsync([id], ct);
-    }
-
-    public async Task<IReadOnlyList<Warehouse>> GetAllAsync(CancellationToken ct = default)
-    {
-        return await Set.AsNoTracking().ToListAsync(ct);
-    }
-
-    public async Task<int> AddAsync(Warehouse entity, CancellationToken ct = default)
-    {
-        await Set.AddAsync(entity, ct);
-        return entity.Id;
-    }
-
-    public async Task UpdateAsync(Warehouse entity, CancellationToken ct = default)
-    {
-        // Efficient update - only updates changed properties
-        var entry = _context.Entry(entity);
-        if (entry.State == EntityState.Detached)
-        {
-            var existing = await Set.FindAsync([entity.Id, ct], cancellationToken: ct);
-            if (existing != null)
+        return await _context.Warehouses
+            .Where(warehouse => warehouse.Id == id)
+            .Select(warehouse => new GetWarehouseWithStockResponseDto
             {
-                _context.Entry(existing).CurrentValues.SetValues(entity);
-                return;
-            }
-        }
-        entry.State = EntityState.Modified;
-    }
-
-    public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
-    {
-        var entity = await Set.FindAsync([id], ct);
-        if (entity == null) return false;
-        
-        Set.Remove(entity);
-        return true;
+                Id = warehouse.Id,
+                WarehouseCode = warehouse.WarehouseCode,
+                WarehouseName = warehouse.WarehouseName,
+                Capacity = warehouse.Capacity,
+                Address = new AddressResponse
+                {
+                    Line1 = warehouse.WarehouseAddress.Line1,
+                    Line2 = warehouse.WarehouseAddress.Line2,
+                    City = warehouse.WarehouseAddress.City,
+                    State = warehouse.WarehouseAddress.State,
+                    PostalCode = warehouse.WarehouseAddress.PostalCode,
+                    Country = warehouse.WarehouseAddress.Country,
+                },
+                ProductsStock = warehouse.ProductStocks.Select(stock => new WarehouseProductStocksResponseDto
+                {
+                    Id = stock.Product.Id,
+                    SKU = stock.Product.SKU,
+                    ProductName = stock.Product.ProductName,
+                    Quantity = stock.Quantity
+                }).ToList(),
+            }).FirstOrDefaultAsync(ct);
     }
 
     public async Task<bool> ExistsAsync(int id, CancellationToken ct = default)

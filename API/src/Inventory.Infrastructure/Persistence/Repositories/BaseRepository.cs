@@ -15,7 +15,7 @@ public class BaseRepository<T>(AppDbContext context) : IRepository<T> where T : 
     
     public virtual async Task<T?> GetByIdAsync(int id, CancellationToken ct = default)
         => await Set.FindAsync([id], ct);
-
+    
     public virtual async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct = default)
         => await Set.AsNoTracking().ToListAsync(ct);
 

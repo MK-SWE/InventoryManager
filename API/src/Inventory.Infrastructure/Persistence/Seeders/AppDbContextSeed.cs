@@ -1,5 +1,6 @@
 ﻿using Inventory.Domain.Entities;
 using Inventory.Domain.Enums;
+using Inventory.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Inventory.Infrastructure.Persistence.Context;
 using Microsoft.Extensions.Logging;
@@ -401,7 +402,12 @@ public static class AppDbContextSeed
                 new() {
                     WarehouseName = "Showroom Warehouse",
                     WarehouseCode = "Main-123",
-                    WarehouseAddress = "123 main st",
+                    WarehouseAddress = new Address
+                    {
+                        Line1 = "123 main st",
+                        City = "Cairo",
+                        Country = "Egypt"
+                    },
                     IsActive = true,
                     Capacity = 500,  // Capacity in pallet locations
                     CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
@@ -409,7 +415,12 @@ public static class AppDbContextSeed
                 new() {
                     WarehouseName = "Secondary Warehouse",
                     WarehouseCode = "Second-1234",
-                    WarehouseAddress = "321 secondary st",
+                    WarehouseAddress = new Address
+                    {
+                        Line1 = "321 secondary st",
+                        City = "Cairo",
+                        Country = "Egypt"
+                    },
                     IsActive = true,
                     Capacity = 1000,  // Capacity in pallet locations
                     CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
@@ -417,7 +428,12 @@ public static class AppDbContextSeed
                 new() {
                     WarehouseName = "Temporary Warehouse",
                     WarehouseCode = "Temp-123",
-                    WarehouseAddress = "456 industrial ave",
+                    WarehouseAddress = new Address
+                    {
+                        Line1 = "456 industrial ave",
+                        City = "Cairo",
+                        Country = "Egypt"
+                    },
                     IsActive = true,
                     Capacity = 300,  // Capacity in pallet locations
                     CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
@@ -464,13 +480,15 @@ public static class AppDbContextSeed
                     // Main warehouse: 10-50 units
                     productStocks.Add(ProductStock.Create( 
                         product.Id,
-                        mainWarehouse.Id
+                        mainWarehouse.Id,
+                        rnd.Next(10, 51)  // Random quantity between 10 and 50
                     ));
                     
                     // Secondary warehouse: 100-500 units
                     productStocks.Add(ProductStock.Create(
                         product.Id,
-                        secondaryWarehouse.Id
+                        secondaryWarehouse.Id,
+                        rnd.Next(100, 501)  // Random quantity between 100 and 500
                     ));
                 }
 

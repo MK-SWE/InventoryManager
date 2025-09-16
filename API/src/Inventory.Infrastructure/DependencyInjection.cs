@@ -23,7 +23,8 @@ public static class DependencyInjection
         services.AddScoped<IProductStockRepository, ProductStockRepository>();
         services.AddScoped<IRepository<Category>, CategoryRepository>();
         services.AddScoped<IRepository<UnitOfMeasure>, BaseRepository<UnitOfMeasure>>();
-        services.AddScoped<IRepository<InventoryTransactionHeader>, BaseRepository<InventoryTransactionHeader>>();
+        services.AddScoped<IRepository<InventoryTransaction>, BaseRepository<InventoryTransaction>>();
+        services.AddScoped<IInventoryTransactionRepository, InventoryTransactionsRepository>();
         
         return services;
     }
