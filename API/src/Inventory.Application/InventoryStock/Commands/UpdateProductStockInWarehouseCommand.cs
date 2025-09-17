@@ -1,4 +1,5 @@
 using Inventory.Domain.Enums;
+using Inventory.Domain.ValueObjects;
 using MediatR;
 
 namespace Inventory.Application.InventoryStock.Commands;

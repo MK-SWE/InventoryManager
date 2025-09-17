@@ -1,5 +1,4 @@
 ﻿using Inventory.Domain.Entities;
-using Inventory.Domain.ValueObjects;
 
 namespace Inventory.Infrastructure.Persistence.Context;
 
@@ -12,7 +11,6 @@ public class AppDbContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Warehouse> Warehouses { get; set; }
     public DbSet<ProductStock> ProductStocks { get; set; }
-    // public DbSet<ProductStockStatus> ProductStockStatuses { get; set; }
     public DbSet<InventoryStockReservation> InventoryStockReservation { get; set; }
     public DbSet<InventoryStockReservationLine> InventoryStockReservationLine { get; set; }
     public DbSet<Category> Categories { get; set; }
@@ -69,29 +67,15 @@ public class AppDbContext : DbContext
                     .WithMany(w => w.ProductStocks)
                     .HasForeignKey(ps => ps.WarehouseId)
                     .OnDelete(DeleteBehavior.Restrict);
-            });
-            
-            modelBuilder.Entity<ProductStockStatus>(entity =>
-            {
-                entity.ToTable("ProductStockStatuses").HasQueryFilter(e => !e.IsDeleted);
-                entity.HasKey(e => e.Id);
-        
-                entity.Property(e => e.Status)
-                    .HasConversion<int>(); // Store enum as int
-            
-                entity.Property(e => e.Quantity)
-                    .IsRequired();
-            
-                /* Relationship with ProductStock
-                // entity.HasOne(e => e.ProductStock)
-                //     .WithMany(p => p.StockStatuses)
-                //     .HasForeignKey(e => e.ProductStockId)
-                //     .OnDelete(DeleteBehavior.Cascade);
-            
-                // Unique constraint: one record per ProductStock-Status combination*/
-                
-                entity.HasIndex(e => new { e.ProductStockId, e.Status })
-                    .IsUnique();
+                entity.OwnsOne(ps => ps.StockStatus, ownedNavigationBuilder =>
+                {
+                    ownedNavigationBuilder.Property(status => status.AvailableStock);
+                    ownedNavigationBuilder.Property(status => status.OnHoldStock);
+                    ownedNavigationBuilder.Property(status => status.QuarantinedStock);
+                    ownedNavigationBuilder.Property(status => status.QualityControlStock);
+                    ownedNavigationBuilder.Property(status => status.ReturnedStock);
+                    ownedNavigationBuilder.Property(status => status.DamagedStock);
+                });
             });
             
             modelBuilder.Entity<InventoryStockReservation>(entity =>

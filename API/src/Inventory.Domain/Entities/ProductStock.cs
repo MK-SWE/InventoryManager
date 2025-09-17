@@ -1,4 +1,5 @@
 using Inventory.Domain.Exceptions;
+using Inventory.Domain.ValueObjects;
 
 namespace Inventory.Domain.Entities;
 
@@ -7,71 +8,67 @@ public class ProductStock : BaseEntity
     public int ProductId { get; init; }
     public Product Product { get; init; } = null!;
     public int WarehouseId { get; init; }
-    public Warehouse Warehouse { get; set; } = null!;
+    public Warehouse Warehouse { get; init; } = null!;
     public int Quantity { get; set; }
-    
-    // ToDo: Implement stock status management on a separate Database table and Domain entity,
-    // this is just a placeholder for now
-    public int AvailableStock { get; set; }
-    public int OnHoldStock { get; set; }
-    public int QuarantinedStock { get; set; }
-    public int QualityControlStock { get; set; }
-    public int ReturnedStock { get; set; }
-    public int DamagedStock { get; set; }
+    public required StockStatus StockStatus { get; init; }
 
     public static ProductStock Create(int productId, int warehouseId, int quantity)
     {
-        ProductStock productStock = new ProductStock()
+        ProductStock productStock = new ProductStock
         {
             ProductId = productId,
             WarehouseId = warehouseId,
+            StockStatus = new StockStatus
+            {
+                AvailableStock = 0
+            }
         };
         productStock.AddStock(quantity);
         return productStock;
     }
-
-    public void AddStock(int quantity)
-    {
+    
+    private static void IsValidQuantity(int quantity) {
         if (quantity < 0)
             throw new InvalidStockOperationException("stock addition", "Quantity must be positive");
-        AvailableStock += quantity;
+    }
+    
+    public void AddStock(int quantity)
+    {
+        IsValidQuantity(quantity);
+        StockStatus.AvailableStock += quantity;
         Quantity += quantity;
     }
 
     public void AdjustStock(int quantity)
     {
-        if (quantity < 0)
-            throw new InvalidStockOperationException("stock adjustment", "Quantity must be positive");
+        IsValidQuantity(quantity);
         Quantity = quantity;
     }
     
     public void ShipStock(int quantity)
     {
-        if (quantity < 0)
-            throw new InvalidStockOperationException("stock shipment", "Quantity must be positive");
-        if (AvailableStock < quantity)
+        IsValidQuantity(quantity);
+        if (StockStatus.AvailableStock < quantity)
             throw new InvalidStockOperationException("stock shipment", "Insufficient available stock");
-        AvailableStock -= quantity;
+        StockStatus.AvailableStock -= quantity;
         Quantity -= quantity;
     }
     
     public void RemoveStock(int quantity)
     {
-        if (quantity < 0)
-            throw new InvalidStockOperationException("stock removal", "Quantity must be positive");
+        IsValidQuantity(quantity);
         if (Quantity < quantity)
             throw new InvalidStockOperationException("stock removal", "Insufficient total stock");
         Quantity -= quantity;
-        AvailableStock = Math.Max(AvailableStock - quantity, 0);
+        StockStatus.AvailableStock = Math.Max( StockStatus.AvailableStock - quantity, 0);
     }
     
     public void AllocateStock(int quantity)
     {
-        if (quantity < 0)
-            throw new InvalidStockOperationException("stock allocation", "Quantity must be positive");
-        if (AvailableStock < quantity)
+        IsValidQuantity(quantity);
+        if (StockStatus.AvailableStock < quantity)
             throw new InvalidStockOperationException("stock allocation", "Insufficient available stock");
-        AvailableStock -= quantity;
-        OnHoldStock += quantity;
+        StockStatus.AvailableStock -= quantity;
+        StockStatus.OnHoldStock += quantity;
     }
 }

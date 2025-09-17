@@ -96,11 +96,11 @@ public class InventoryStockReservationService :IInventoryStockReservationService
                         $"Product stock for Product ID {productAllocationDto.ProductId} in Warehouse ID {warehouseAllocationDto.WarehouseId} not found.");
                 }
                 
-                if (productStock.AvailableStock < warehouseAllocationDto.AllocatedQuantity)
+                if (productStock.StockStatus.AvailableStock < warehouseAllocationDto.AllocatedQuantity)
                 {
                     return new ReservationOperationResult(false, 
                         $"Insufficient stock for Product ID {productAllocationDto.ProductId} in Warehouse ID {warehouseAllocationDto.WarehouseId}. " +
-                        $"Requested: {warehouseAllocationDto.AllocatedQuantity}, Available: {productStock.AvailableStock}");
+                        $"Requested: {warehouseAllocationDto.AllocatedQuantity}, Available: {productStock.StockStatus.AvailableStock}");
                 }
                 
                 productStock.AllocateStock(warehouseAllocationDto.AllocatedQuantity);

@@ -42,7 +42,7 @@ public sealed class Product: BaseEntity
                 .Where(line => line.ProductId == Id)
                 .Sum(line => line.AllocatedQuantity);
         
-        public int TotalAvailableStock => ProductStocks.Sum(ps => ps.AvailableStock);
+        public int TotalAvailableStock => ProductStocks.Sum(ps => ps.StockStatus.AvailableStock);
         public int UnallocatedReservedStock => TotalReservedStock - TotalAllocatedStock;
         public bool CanReserve(int requestedQuantity) => requestedQuantity <= TotalAvailableStock;
     #endregion

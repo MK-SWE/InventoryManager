@@ -1,11 +1,11 @@
-namespace Inventory.Domain.Enums;
+namespace Inventory.Domain.ValueObjects;
 
-public enum StockStatus
+public sealed record StockStatus
 {
-    Available= 1,
-    OnHold,
-    Quarantined, 
-    QualityControl,
-    Returned,
-    Damaged
+    public int AvailableStock {get; set; }
+    public int? OnHoldStock {get; set; }
+    public int? QuarantinedStock {get; set; } 
+    public int? QualityControlStock {get; set; }
+    public int? ReturnedStock {get; set; }
+    public int? DamagedStock {get; set; }
 }
