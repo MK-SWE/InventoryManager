@@ -23,9 +23,9 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
     private async Task ParallelValidation(
         UpdateProductCommand command,
         ValidationContext<UpdateProductCommand> context,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(command.Id, ct);
+        var product = await _productRepository.GetByIdAsync(command.Id, cancellationToken);
         if (product == null || product.IsDeleted)
         {
             context.AddFailure("ProductId", "Product not found or was deleted");
@@ -40,7 +40,7 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
             tasks.Add(_validationHelper.ValidateSkuAsync(
                 command.UpdateProductCommandDto.SKU,
                 context,
-                ct
+                cancellationToken
             ));
         }
 
@@ -49,7 +49,7 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
             tasks.Add(_validationHelper.ValidateCategoryAsync(
                 command.UpdateProductCommandDto.CategoryId.Value,
                 context,
-                ct
+                cancellationToken
             ));
         }
 
@@ -58,7 +58,7 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
             tasks.Add(_validationHelper.ValidateUnitOfMeasureAsync(
                 command.UpdateProductCommandDto.UnitOfMeasureId.Value,
                 context,
-                ct
+                cancellationToken
             ));
         }
 

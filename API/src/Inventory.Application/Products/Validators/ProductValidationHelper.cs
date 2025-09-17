@@ -23,10 +23,10 @@ public class ProductValidationHelper
     public async Task ValidateSkuAsync<T>(
         string sku,
         ValidationContext<T> context,
-        CancellationToken ct,
+        CancellationToken cancellationToken,
         string propertyName = "SKU")
     {
-        if (await _productRepository.GetBySkuAsync(sku, ct) != null)
+        if (await _productRepository.GetBySkuAsync(sku, cancellationToken) != null)
         {
             context.AddFailure(propertyName, "SKU must be unique");
         }
@@ -35,10 +35,10 @@ public class ProductValidationHelper
     public async Task ValidateCategoryAsync<T>(
         int categoryId,
         ValidationContext<T> context,
-        CancellationToken ct,
+        CancellationToken cancellationToken,
         string propertyName = "CategoryId")
     {
-        var category = await _categoryRepository.GetByIdAsync(categoryId, ct);
+        var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
         if (category == null || category.IsDeleted)
         {
             context.AddFailure(propertyName, "Category not found or was deleted");
@@ -48,10 +48,10 @@ public class ProductValidationHelper
     public async Task ValidateUnitOfMeasureAsync<T>(
         int unitOfMeasureId,
         ValidationContext<T> context,
-        CancellationToken ct,
+        CancellationToken cancellationToken,
         string propertyName = "UnitOfMeasureId")
     {
-        var unitOfMeasure = await _unitOfMeasureRepository.GetByIdAsync(unitOfMeasureId, ct);
+        var unitOfMeasure = await _unitOfMeasureRepository.GetByIdAsync(unitOfMeasureId, cancellationToken);
         if ( unitOfMeasure == null || unitOfMeasure.IsDeleted)
         {
             context.AddFailure(propertyName, "Unit of measure not found or was deleted");

@@ -4,5 +4,5 @@ namespace Inventory.Domain.Interfaces;
 
 public interface IInventoryTransactionRepository
 {
-    Task<GetTransactionResponseDto?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default);
+    Task<GetTransactionResponseDto?> GetByIdWithDetailsAsync(int id, CancellationToken cancellationToken = default);
 }

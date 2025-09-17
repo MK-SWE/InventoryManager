@@ -22,30 +22,30 @@ public sealed class InventoryTransactionService : IInventoryTransactionService
         _unitOfWork = unitOfWork;
         _transactionRepo = transactionRepo;
     }
-    public async Task<int> ProcessTransactionAsync(CreateTransactionCommand command, CancellationToken ct)
+    public async Task<int> ProcessTransactionAsync(CreateTransactionCommand command, CancellationToken cancellationToken = default)
     {
         var transaction = MapToDomain(command);
 
-        await _unitOfWork.BeginTransactionAsync(ct);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             switch (transaction.TransactionType)
             {
                 case TransactionType.PurchaseReceipt:
                 case TransactionType.Return:
-                    await _inventoryStockService.ReceiveStock(transaction, ct);
+                    await _inventoryStockService.ReceiveStock(transaction, cancellationToken);
                     break;
 
                 case TransactionType.SalesFulfillment:
-                    await _inventoryStockService.ShipStock(transaction, ct);
+                    await _inventoryStockService.ShipStock(transaction, cancellationToken);
                     break;
 
                 case TransactionType.StockTransfer:
-                    await _inventoryStockService.StockTransfer(transaction, ct);
+                    await _inventoryStockService.StockTransfer(transaction, cancellationToken);
                     break;
 
                 case TransactionType.StockAdjustment:
-                    await _inventoryStockService.AdjustStock(transaction, ct);
+                    await _inventoryStockService.AdjustStock(transaction, cancellationToken);
                     break;
                 
                 //ToDo: Implement Production Input/OutPut Operations
@@ -59,13 +59,13 @@ public sealed class InventoryTransactionService : IInventoryTransactionService
                         $"Unsupported transaction type: {transaction.TransactionType}");
             }
 
-            var transactionId = await _transactionRepo.AddAsync(transaction, ct);
-            await _unitOfWork.CommitAsync(ct);
+            var transactionId = await _transactionRepo.AddAsync(transaction, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
             return transactionId;
         }
         catch
         {
-            await _unitOfWork.RollbackAsync(ct);
+            await _unitOfWork.RollbackAsync(cancellationToken);
             throw;
         }
     }

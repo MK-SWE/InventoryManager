@@ -18,7 +18,7 @@ public class InventoryTransactionsRepository: BaseRepository<InventoryTransactio
         _context = context;
     }
 
-    public Task<GetTransactionResponseDto?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default)
+    public Task<GetTransactionResponseDto?> GetByIdWithDetailsAsync(int id, CancellationToken cancellationToken = default)
     {
         return _context.InventoryTransactionHeaders
             .Where(transaction => transaction.Id == id)
@@ -69,6 +69,6 @@ public class InventoryTransactionsRepository: BaseRepository<InventoryTransactio
                 }).ToList(),
                 Notes = transaction.Notes,
             })
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

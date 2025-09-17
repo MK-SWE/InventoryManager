@@ -17,7 +17,7 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
         _context = context;
     }
     
-    public async Task<GetProductsResponseDto?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default)
+    public async Task<GetProductsResponseDto?> GetByIdWithDetailsAsync(int id, CancellationToken cancellationToken = default)
     {
         var currentTime = DateTime.UtcNow;
         var query = Set
@@ -56,21 +56,21 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
                 LastModifiedDate = product.LastModifiedDate,
                 IsActive = product.IsActive,
             })
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsAsync(int id, CancellationToken ct = default)
-        => await Set.AnyAsync(p => p.Id == id, ct);
+    public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default)
+        => await Set.AnyAsync(p => p.Id == id, cancellationToken);
 
-    public async Task<Product?> GetBySkuAsync(string sku, CancellationToken ct = default)
+    public async Task<Product?> GetBySkuAsync(string sku, CancellationToken cancellationToken = default)
         => await Set.AsNoTracking()
                     .Include(p => p.ProductStocks)
-                    .FirstOrDefaultAsync(p => p.SKU == sku, ct);
+                    .FirstOrDefaultAsync(p => p.SKU == sku, cancellationToken);
 
     public async Task<(IReadOnlyList<GetProductsResponseDto> Items, int TotalCount)> GetPagedAsync(
         int pageNumber, 
         int pageSize, 
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         var currentTime = DateTime.UtcNow;
         var query = Set
@@ -79,7 +79,7 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
             .Include(p => p.Reservations)
             .ThenInclude(r => r.Reservation);
 
-        var total = await query.CountAsync(ct);
+        var total = await query.CountAsync(cancellationToken);
     
         var items = await query.Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -110,12 +110,12 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
                 LastModifiedDate = product.LastModifiedDate,
                 IsActive = product.IsActive,
             })
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
                               
         return (items, total);
     }
     
-    public async Task<ProductWithStocksResponseDto?> GetByIdWithStocksAsync(int id, CancellationToken ct = default)
+    public async Task<ProductWithStocksResponseDto?> GetByIdWithStocksAsync(int id, CancellationToken cancellationToken = default)
     {
         return await Set
             .Where(p => p.Id == id)
@@ -135,10 +135,10 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
                     TotalQuantity = ps.Quantity
                 }).ToList()
             })
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(cancellationToken);
     }
     
-    public async Task<HashSet<Product>> GetBulkProductsByIdsAsync(HashSet<int> productIds, CancellationToken ct = default)
+    public async Task<HashSet<Product>> GetBulkProductsByIdsAsync(HashSet<int> productIds, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(productIds);
     
@@ -154,26 +154,26 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
             var products = await Set
                 .AsNoTracking()
                 .Where(p => distinctIds.Contains(p.Id))
-                .ToListAsync(ct);
+                .ToListAsync(cancellationToken);
             return products.ToHashSet();
         }
     
         var results = new HashSet<Product>();
         for (int i = 0; i < distinctIds.Length; i += maxParameters)
         {
-            ct.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
         
             var chunk = distinctIds.Skip(i).Take(maxParameters).ToArray();
             var products = await Set
                 .AsNoTracking()
                 .Where(p => chunk.Contains(p.Id))
-                .ToListAsync(ct);
+                .ToListAsync(cancellationToken);
             results.UnionWith(products);
         }
         return results;
     }
     
-    public async Task UpdateBulkAsync(IReadOnlyCollection<Product> products, CancellationToken ct = default)
+    public async Task UpdateBulkAsync(IReadOnlyCollection<Product> products, CancellationToken cancellationToken = default)
     {
         if (products == null || !products.Any())
             throw new ArgumentException("Products collection cannot be null or empty.", nameof(products));
@@ -187,14 +187,14 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
         try
         {
             Set.UpdateRange(products);
-            await _context.SaveChangesAsync(ct);
+            await _context.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateConcurrencyException ex)
         {
             // Handle concurrency issues for bulk updates
             foreach (var entry in ex.Entries)
             {
-                var databaseValues = await entry.GetDatabaseValuesAsync(ct);
+                var databaseValues = await entry.GetDatabaseValuesAsync(cancellationToken);
                 if (databaseValues == null)
                 {
                     throw new DBConcurrencyException("One of the records was deleted by another user");
@@ -202,7 +202,7 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
                 
                 entry.OriginalValues.SetValues(databaseValues);
             }
-            await _context.SaveChangesAsync(ct);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

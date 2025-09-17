@@ -7,15 +7,15 @@ public interface IProductStockRepository: IReadRepository<ProductStock>, IWriteR
     Task<ProductStock?> GetByProductAndWarehouseAsync(
         int productId, 
         int warehouseId,
-        CancellationToken ct = default);
+        CancellationToken cancellationToken = default);
         
     Task<IReadOnlyList<ProductStock>> GetByProductAsync(
         int productId,
-        CancellationToken ct = default);
+        CancellationToken cancellationToken = default);
     
 
-    Task<IEnumerable<ProductStock>> GetByProductsIdsAsync(IEnumerable<int> productIds, CancellationToken ct = default);
+    Task<IEnumerable<ProductStock>> GetByProductsIdsAsync(IEnumerable<int> productIds, CancellationToken cancellationToken = default);
     
-    Task AddRangeAsync(IEnumerable<ProductStock> entities, CancellationToken ct);
-    Task UpdateRangeAsync(IEnumerable<ProductStock> entities, CancellationToken ct);
+    Task AddRangeAsync(IEnumerable<ProductStock> entities, CancellationToken cancellationToken);
+    Task UpdateRangeAsync(IEnumerable<ProductStock> entities, CancellationToken cancellationToken);
 }

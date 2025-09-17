@@ -12,7 +12,7 @@ public class WarehouseRepository(AppDbContext context) : BaseRepository<Warehous
 {
     private readonly AppDbContext _context = context;
 
-    public async Task<GetWarehouseWithStockResponseDto?> GetWarehouseStocks(int id, CancellationToken ct = default)
+    public async Task<GetWarehouseWithStockResponseDto?> GetWarehouseStocks(int id, CancellationToken cancellationToken = default)
     {
         return await _context.Warehouses
             .Where(warehouse => warehouse.Id == id)
@@ -38,12 +38,12 @@ public class WarehouseRepository(AppDbContext context) : BaseRepository<Warehous
                     ProductName = stock.Product.ProductName,
                     Quantity = stock.Quantity
                 }).ToList(),
-            }).FirstOrDefaultAsync(ct);
+            }).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsAsync(int id, CancellationToken ct = default)
+    public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default)
     {
-        var entity = await Set.FindAsync([id], ct);
+        var entity = await Set.FindAsync([id], cancellationToken);
         return entity != null;
     }
 }

@@ -12,23 +12,23 @@ public class ProductStockRepository(AppDbContext context) : BaseRepository<Produ
     public async Task<ProductStock?> GetByProductAndWarehouseAsync(
         int productId, 
         int warehouseId,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
         => await _context.ProductStocks
             .AsNoTracking()
             .FirstOrDefaultAsync(ps => 
                 ps.ProductId == productId && 
-                ps.WarehouseId == warehouseId, ct);
+                ps.WarehouseId == warehouseId, cancellationToken);
 
     public async Task<IReadOnlyList<ProductStock>> GetByProductAsync(
         int productId,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
         => await _context.ProductStocks
             .AsNoTracking()
             .Where(ps => ps.ProductId == productId)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     
 
-    public async Task<IEnumerable<ProductStock>> GetByProductsIdsAsync( IEnumerable<int> productIds, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductStock>> GetByProductsIdsAsync( IEnumerable<int> productIds, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(productIds);
     
@@ -44,13 +44,13 @@ public class ProductStockRepository(AppDbContext context) : BaseRepository<Produ
             return await _context.ProductStocks
                 .AsNoTracking()
                 .Where(ps => distinctIds.Contains(ps.ProductId))
-                .ToListAsync(ct);
+                .ToListAsync(cancellationToken);
         }
 
         var results = new List<ProductStock>();
         for (int i = 0; i < distinctIds.Length; i += maxParameters)
         {
-            ct.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
         
             var chunk = distinctIds
                 .Skip(i)
@@ -60,7 +60,7 @@ public class ProductStockRepository(AppDbContext context) : BaseRepository<Produ
             var stocks = await _context.ProductStocks
                 .AsNoTracking()
                 .Where(ps => chunk.Contains(ps.ProductId))
-                .ToListAsync(ct);
+                .ToListAsync(cancellationToken);
 
             results.AddRange(stocks);
         }
@@ -68,10 +68,10 @@ public class ProductStockRepository(AppDbContext context) : BaseRepository<Produ
         return results;
     }
     
-    public async Task AddRangeAsync(IEnumerable<ProductStock> entities, CancellationToken ct )
-        => await _context.ProductStocks.AddRangeAsync(entities, ct);
+    public async Task AddRangeAsync(IEnumerable<ProductStock> entities, CancellationToken cancellationToken )
+        => await _context.ProductStocks.AddRangeAsync(entities, cancellationToken);
     
-    public Task UpdateRangeAsync(IEnumerable<ProductStock> entities, CancellationToken ct)
+    public Task UpdateRangeAsync(IEnumerable<ProductStock> entities, CancellationToken cancellationToken)
     {
         _context.ProductStocks.UpdateRange(entities);
         return Task.CompletedTask;

@@ -15,7 +15,7 @@ public class InventoryStockReservationRepositoryRepository: BaseRepository<Inven
         _context = context;
     }
 
-    public Task<InventoryStockReservationResponseDto?> GetByReferenceWithDetailsAsync(Guid reservationReference, CancellationToken ct = default)
+    public Task<InventoryStockReservationResponseDto?> GetByReferenceWithDetailsAsync(Guid reservationReference, CancellationToken cancellationToken = default)
     {
         return _context.InventoryStockReservation
             .Where(res => res.ReservationReference == reservationReference)
@@ -33,14 +33,14 @@ public class InventoryStockReservationRepositoryRepository: BaseRepository<Inven
                     Quantity = rl.ReservedQuantity
                 }).ToList()
             })
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(cancellationToken);
     }
     
-    public async Task<InventoryStockReservation?> GetReservationWithLinesAsync(Guid reservationReference, CancellationToken ct = default)
+    public async Task<InventoryStockReservation?> GetReservationWithLinesAsync(Guid reservationReference, CancellationToken cancellationToken = default)
     {
         var reservation = await _context.InventoryStockReservation
             .Include(r => r.ReservationLines)
-            .FirstOrDefaultAsync(r => r.ReservationReference == reservationReference, ct);
+            .FirstOrDefaultAsync(r => r.ReservationReference == reservationReference, cancellationToken);
 
         if (reservation == null)
         {

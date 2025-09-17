@@ -15,9 +15,9 @@ public sealed class CreateTransactionCommandHandler : IRequestHandler<CreateTran
         _transactionService = transactionService;
     }
 
-    public async Task<int> Handle(CreateTransactionCommand request, CancellationToken ct)
+    public async Task<int> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
     {
-        return await _transactionService.ProcessTransactionAsync(request, ct);
+        return await _transactionService.ProcessTransactionAsync(request, cancellationToken);
     }
     
 }

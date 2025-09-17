@@ -21,12 +21,12 @@ public class InventoryStockReservationService :IInventoryStockReservationService
         _reservationRepository = reservationRepository;
     }
     
-    public async Task<IReservationResult> ReserveStockAsync(IReadOnlyCollection<CreateReservationLineCommandDto> reservationLines, CancellationToken ct = default)
+    public async Task<IReservationResult> ReserveStockAsync(IReadOnlyCollection<CreateReservationLineCommandDto> reservationLines, CancellationToken cancellationToken = default)
     {
         if (reservationLines == null || !reservationLines.Any())
             throw new ArgumentException("Reserve items collection cannot be null or empty.", nameof(reservationLines));
         HashSet<Product> products = await _productService.GetProductsByIds(reservationLines.Select(ri => ri.ProductId).ToHashSet());
-        await _unitOfWork.BeginTransactionAsync(ct);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             var newReservation = InventoryStockReservation.Create(DateTime.UtcNow + TimeSpan.FromDays(7));
@@ -40,8 +40,8 @@ public class InventoryStockReservationService :IInventoryStockReservationService
                 newReservation.AddReservationLine(reservationLine.ProductId, reservationLine.Quantity, allocatedQuantity: 0);
             }
             
-            await _reservationRepository.AddAsync(newReservation, ct);
-            await _unitOfWork.CommitAsync(ct);
+            await _reservationRepository.AddAsync(newReservation, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
             return new ReserveStockReference(
                 reserveId: newReservation.ReservationReference,
                 isSuccess: true,
@@ -50,19 +50,19 @@ public class InventoryStockReservationService :IInventoryStockReservationService
         }
         catch (Exception ex)
         {
-            await _unitOfWork.RollbackAsync(ct);
+            await _unitOfWork.RollbackAsync(cancellationToken);
             return new ReservationOperationResult(
                 isSuccess: false,
                 errorMessage: ex.ToString());
         }
     }
 
-    public async Task<ReservationOperationResult> AllocateReservationAsync(Guid reference, StockReservationAllocationDto stockReservationAllocationDto, CancellationToken ct = default)
+    public async Task<ReservationOperationResult> AllocateReservationAsync(Guid reference, StockReservationAllocationDto stockReservationAllocationDto, CancellationToken cancellationToken = default)
 {
     if (!stockReservationAllocationDto.AllocateItems.Any())
         return new ReservationOperationResult(false, "Allocation DTO or its allocate items cannot be null or empty.");
     
-    var reservation = await _reservationRepository.GetReservationWithLinesAsync(reference, ct);
+    var reservation = await _reservationRepository.GetReservationWithLinesAsync(reference, cancellationToken);
     if (reservation == null)
         return new ReservationOperationResult(false, $"Reservation with reference {reference} was not found.");
     
@@ -77,7 +77,7 @@ public class InventoryStockReservationService :IInventoryStockReservationService
 
     List<ProductStock> updatedStocks = new List<ProductStock>();
     
-    await _unitOfWork.BeginTransactionAsync(ct);
+    await _unitOfWork.BeginTransactionAsync(cancellationToken);
     try
     {
         foreach (var productAllocationDto in stockReservationAllocationDto.AllocateItems)
@@ -111,16 +111,16 @@ public class InventoryStockReservationService :IInventoryStockReservationService
         
         if (updatedStocks.Any())
         {
-            await _productStockRepository.UpdateRangeAsync(updatedStocks, ct);
+            await _productStockRepository.UpdateRangeAsync(updatedStocks, cancellationToken);
         }
         
-        await _reservationRepository.UpdateAsync(reservation, ct);
-        await _unitOfWork.CommitAsync(ct);
+        await _reservationRepository.UpdateAsync(reservation, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
         return new ReservationOperationResult(true);
     }
     catch (Exception ex)
     {
-        await _unitOfWork.RollbackAsync(ct);
+        await _unitOfWork.RollbackAsync(cancellationToken);
         return new ReservationOperationResult(false, ex.Message);
     }
     finally
@@ -129,12 +129,12 @@ public class InventoryStockReservationService :IInventoryStockReservationService
     }
 }
     
-    public async Task<ReservationOperationResult> UpdateReservationAsync( Guid reference, UpdateStockReservationCommandDto updateDto, CancellationToken ct = default)
+    public async Task<ReservationOperationResult> UpdateReservationAsync( Guid reference, UpdateStockReservationCommandDto updateDto, CancellationToken cancellationToken = default)
 {
     if (updateDto.ReservationLines == null || !updateDto.ReservationLines.Any())
         return new ReservationOperationResult(false, "Update DTO or its reservation lines cannot be null or empty.");
     
-    var reservation = await _reservationRepository.GetReservationWithLinesAsync(reference, ct);
+    var reservation = await _reservationRepository.GetReservationWithLinesAsync(reference, cancellationToken);
     if (reservation == null)
         return new ReservationOperationResult(false, $"Reservation with reference {reference} was not found.");
     
@@ -177,34 +177,34 @@ public class InventoryStockReservationService :IInventoryStockReservationService
 
     if (hasChanges)
     {
-        await _reservationRepository.UpdateAsync(reservation, ct);
+        await _reservationRepository.UpdateAsync(reservation, cancellationToken);
     }
 
     return new ReservationOperationResult(true);
 }
 
-    public async Task<ReservationOperationResult> CancelReservationAsync(Guid reference, CancellationToken ct = default)
+    public async Task<ReservationOperationResult> CancelReservationAsync(Guid reference, CancellationToken cancellationToken = default)
     {
-        var reservation = await _reservationRepository.GetByReferenceWithDetailsAsync(reference, ct);
+        var reservation = await _reservationRepository.GetByReferenceWithDetailsAsync(reference, cancellationToken);
         if (reservation == null || reservation.IsDeleted)
         {
             // Reservation not found or Reservation already cancelled, nothing to cancel
             return new ReservationOperationResult(
                 isSuccess: false,
-                errorMessage: $"Reservation with reference {ct} not found or already cancelled."
+                errorMessage: $"Reservation with reference {cancellationToken} not found or already cancelled."
             );
         }
-        await _unitOfWork.BeginTransactionAsync(ct);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            await _reservationRepository.HardDeleteAsync(reservation.Id, ct);
-            await _unitOfWork.CommitAsync(ct);
+            await _reservationRepository.HardDeleteAsync(reservation.Id, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
             return new ReservationOperationResult(isSuccess: true, errorMessage: null);
         }
         catch(Exception ex)
         {
-            await _unitOfWork.RollbackAsync(ct);
+            await _unitOfWork.RollbackAsync(cancellationToken);
             return new ReservationOperationResult(isSuccess: false, errorMessage: ex.ToString());
         }
         finally

@@ -6,7 +6,7 @@ public interface IUnitOfWork : IDisposable
     IWarehouseRepository Warehouses { get; }
     IProductStockRepository ProductStocks { get; }
 
-    Task BeginTransactionAsync(CancellationToken ct = default);
-    Task CommitAsync(CancellationToken ct = default);
-    Task RollbackAsync(CancellationToken ct = default);
+    Task BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task CommitAsync(CancellationToken cancellationToken = default);
+    Task RollbackAsync(CancellationToken cancellationToken = default);
 }

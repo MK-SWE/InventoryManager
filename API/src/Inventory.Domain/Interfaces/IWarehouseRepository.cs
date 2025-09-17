@@ -5,6 +5,6 @@ namespace Inventory.Domain.Interfaces;
 
 public interface IWarehouseRepository: IRepository<Warehouse>
 {
-    Task<GetWarehouseWithStockResponseDto?> GetWarehouseStocks(int id, CancellationToken ct = default);
-    Task<bool> ExistsAsync(int id, CancellationToken ct = default);
+    Task<GetWarehouseWithStockResponseDto?> GetWarehouseStocks(int id, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default);
 }

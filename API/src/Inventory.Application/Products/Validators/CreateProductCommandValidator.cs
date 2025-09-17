@@ -18,10 +18,10 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
     private async Task ParallelValidation(
         CreateProductCommand command, 
         ValidationContext<CreateProductCommand> context, 
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
-        await _validationHelper.ValidateSkuAsync(command.CreateProductCommandDto.SKU, context, ct);
-        await _validationHelper.ValidateCategoryAsync(command.CreateProductCommandDto.CategoryId, context, ct);
-        await _validationHelper.ValidateUnitOfMeasureAsync(command.CreateProductCommandDto.UnitOfMeasureId, context, ct);
+        await _validationHelper.ValidateSkuAsync(command.CreateProductCommandDto.SKU, context, cancellationToken);
+        await _validationHelper.ValidateCategoryAsync(command.CreateProductCommandDto.CategoryId, context, cancellationToken);
+        await _validationHelper.ValidateUnitOfMeasureAsync(command.CreateProductCommandDto.UnitOfMeasureId, context, cancellationToken);
     }
 }
